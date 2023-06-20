@@ -51,14 +51,6 @@ usrdashboardroutes.post('/createAlbum', multer.none(), (req, res) => {
         }
     })
 });
-
-function getCurrentDate() {
-    const currentDate = new Date();
-    const day = String(currentDate.getDate()).padStart(2, '0');
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const year = currentDate.getFullYear();
-    return `${day}/${month}/${year}`;
-}
   
 usrdashboardroutes.post('/deleteAlbum', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
@@ -70,11 +62,7 @@ usrdashboardroutes.post('/deleteAlbum', multer.none(), (req, res) => {
                 
                     database.connection.query(query, [req.body.userId, req.body.albumName], (error, result, fields)=> {
                         if(error) {                                
-                            if (error.code === 'ER_DUP_ENTRY') {
-                                res.status(409).json({ error: 'Duplicate entry' });
-                            } else {
-                                res.status(500).json({ error: 'Internal server error' });
-                            }
+                            res.status(500).json({ error: 'Internal server error' });
                         } else {
                             console.log("\n\n" + JSON.stringify(result) + "\n\n");
                             res.status(200).json({ message: 'Album Deleted successfully'});
@@ -113,6 +101,12 @@ function deleteDirectory(directoryPath, callback) {
     }
 }
 
-
+function getCurrentDate() {
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    return `${day}/${month}/${year}`;
+}
 
 module.exports = usrdashboardroutes;
