@@ -25,7 +25,39 @@ function checkUserTablePresent(myCallback) {
 }
 
 function creatUserTable(myCallback) {
-    let createTablesqlQ = "CREATE TABLE `mystudio`.`user` (`mobilenumber` VARCHAR(45) NOT NULL, `userId` VARCHAR(45) NOT NULL, `email` VARCHAR(45) NULL, `createdDat` VARCHAR(45) NULL, `usertype` VARCHAR(45) NULL, `password` VARCHAR(150) NULL, `state` VARCHAR(45) NULL, `distict` VARCHAR(45) NULL, `profileimage` VARCHAR(500) NULL, PRIMARY KEY (`mobilenumber`));";
+    let createTablesqlQ = "CREATE TABLE `mystudio`.`user` (`mobilenumber` VARCHAR(45) NOT NULL, `userId` VARCHAR(45) NOT NULL, `email` VARCHAR(45) NULL, `createdDate` VARCHAR(45) NULL, `usertype` VARCHAR(45) NULL, `password` VARCHAR(150) NULL, `state` VARCHAR(45) NULL, `distict` VARCHAR(45) NULL, `profileimage` VARCHAR(500) NULL, PRIMARY KEY (`mobilenumber`));";
+    database.connection.query(createTablesqlQ, (error, result, fields)=> {
+        myCallback(0);
+        return;
+    });
+}
+
+
+function checkUserAlbumTablePresent(myCallback) {
+    let checkUserTblExist = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = 'mystudio' AND    table_name = 'useralbum');";
+    database.connection.query(checkUserTblExist, (error, result, fields)=> {
+        if(error) {
+            creatUserAlbumTable(result => {
+                myCallback(0);
+                return;
+            });
+        } else {
+            const tablePresent = JSON.stringify(result[0][Object.keys(result[0])[0]]);
+            if (tablePresent == 1) {
+                myCallback(1);
+                return;
+            } else {
+                creatUserAlbumTable(result => {
+                    myCallback(1);
+                    return;
+                });
+            }
+        }
+    });
+}
+
+function creatUserAlbumTable(myCallback) {
+    let createTablesqlQ = "CREATE TABLE `mystudio`.`useralbum` (`mobilenumber` VARCHAR(45) NOT NULL, `userId` VARCHAR(45) NOT NULL, `createdDate` VARCHAR(45) NULL, `eventDate` VARCHAR(45) NULL, `albumName` VARCHAR(45) NULL, `eventType` VARCHAR(150) NULL, `albumpath` VARCHAR(150) NULL, PRIMARY KEY (`mobilenumber`));";
     database.connection.query(createTablesqlQ, (error, result, fields)=> {
         myCallback(0);
         return;
@@ -33,5 +65,6 @@ function creatUserTable(myCallback) {
 }
 
 module.exports = { 
-                    checkUserTablePresent
+                    checkUserTablePresent,
+                    checkUserAlbumTablePresent
                 };

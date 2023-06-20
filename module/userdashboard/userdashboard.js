@@ -11,22 +11,61 @@ const { decode } = require('jsonwebtoken');
 usrdashboardroutes.post('/createAlbum', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
-            const directoryPath = `./Media/Photo/${decoded.mobilenumber}/${req.body.albumName}`;
-            fs.mkdir(directoryPath, { recursive: true }, (err) => {
-                if (err) {
-                    res.status(200).json({ error: 'Internal Server Error' });
-                } else {
-                    res.status(200).json({ message: 'Album Created successfully'});
+            tableCheck.checkUserAlbumTablePresent(result => {
+                if (result == 1) {   
+                    const directoryPath = `./Media/Photo/${req.body.userid}/${req.body.albumName}`;
+                    fs.mkdir(directoryPath, { recursive: true }, (err) => {
+                        if (err) {
+                            res.status(200).json({ error: 'Internal Server Error' });
+                        } else {
+                            var regSql = "INSERT INTO `mystudio`.`useralbum` (`mobilenumber`, `userId`, `createdDate`, `eventDate`, `albumName`, `eventType`, `albumpath`) VALUES ?";
+                            const formattedDate = getCurrentDate();                            
+                            var value = [
+                                [
+                                    req.body.mobilenumber,
+                                    req.body.userId,
+                                    formattedDate,
+                                    req.body.eventDate,
+                                    req.body.albumName,
+                                    req.body.eventType,
+                                    directoryPath
+                                ]
+                            ];
+                            database.connection.query(regSql, [value], (error, result, fields)=> {
+                                if(error) {                                
+                                    if (error.code === 'ER_DUP_ENTRY') {
+                                        res.status(409).json({ error: 'Duplicate entry' });
+                                    } else {
+                                        res.status(500).json({ error: 'Internal server error' });
+                                    }
+                                } else {
+                                    console.log("\n\n" + JSON.stringify(result) + "\n\n");
+                                    res.status(200).json({ message: 'Album Created successfully'});
+                                }
+                            });
+                        }
+                    });
                 }
             });
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
         }
     })
 });
 
+function getCurrentDate() {
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const year = currentDate.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+  
+
 usrdashboardroutes.post('/deleteAlbum', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
-            const directoryPath = `./Media/Photo/${decoded.mobilenumber}/${req.body.albumName}`;
+            const directoryPath = `./Media/Photo/${req.body.userid}`;
             deleteDirectory(directoryPath, result => {
                 if (result == 1) {
                     res.status(200).json({ message: 'Album Deleted successfully'});
@@ -61,6 +100,8 @@ function deleteDirectory(directoryPath, callback) {
       console.log('Directory does not exist');
       callback(0);
     }
-  }
+}
+
+
 
 module.exports = usrdashboardroutes;

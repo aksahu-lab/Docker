@@ -23,6 +23,7 @@ loginroutes.post('/login', multer.none(), (req, res) => {
                         var response = {
                             token : jwttoken,
                             mobilenumber : result[0].mobilenumber,
+                            userId : result[0].userId,
                             email : result[0].email,
                             state : result[0].state,
                             distict : result[0].distict,
