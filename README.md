@@ -50,3 +50,7 @@ Now that you're more familiar with your Bitbucket repository, go ahead and add a
 https://support.atlassian.com/bitbucket-cloud/docs/configure-ssh-and-two-step-verification/
 2. Share the access key with admin. (Sujit, Gyana)
 3. Project -> Settins -> Access Keys -> Add key.
+
+
+API Details Doc
+http://localhost:3000/api-docs/
