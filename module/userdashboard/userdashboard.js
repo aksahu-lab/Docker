@@ -16,13 +16,12 @@ usrdashboardroutes.post('/createAlbum', multer.none(), (req, res) => {
                     const directoryPath = `./Media/Photo/${req.body.userId}/${req.body.albumName}`;
                     fs.mkdir(directoryPath, { recursive: true }, (err) => {
                         if (err) {
-                            res.status(200).json({ error: 'Internal Server Error' });
+                            res.status(400).json({ error: 'Internal Server Error' });
                         } else {
-                            var regSql = "INSERT INTO `mystudio`.`useralbum` (`mobilenumber`, `userId`, `createdDate`, `eventDate`, `albumName`, `eventType`, `albumpath`) VALUES ?";
+                            var regSql = "INSERT INTO `mystudio`.`useralbum` (`userId`, `createdDate`, `eventDate`, `albumName`, `eventType`, `albumpath`) VALUES ?";
                             const formattedDate = getCurrentDate();                            
                             var value = [
                                 [
-                                    req.body.mobilenumber,
                                     req.body.userId,
                                     formattedDate,
                                     req.body.eventDate,
@@ -61,14 +60,26 @@ function getCurrentDate() {
     return `${day}/${month}/${year}`;
 }
   
-
 usrdashboardroutes.post('/deleteAlbum', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
-            const directoryPath = `./Media/Photo/${req.body.userid}`;
+            const directoryPath = `./Media/Photo/${req.body.userId}/${req.body.albumName}`;
             deleteDirectory(directoryPath, result => {
                 if (result == 1) {
-                    res.status(200).json({ message: 'Album Deleted successfully'});
+                    const query = 'DELETE FROM `mystudio`.`useralbum` WHERE userId = ? AND albumName = ?';
+                
+                    database.connection.query(query, [req.body.userId, req.body.albumName], (error, result, fields)=> {
+                        if(error) {                                
+                            if (error.code === 'ER_DUP_ENTRY') {
+                                res.status(409).json({ error: 'Duplicate entry' });
+                            } else {
+                                res.status(500).json({ error: 'Internal server error' });
+                            }
+                        } else {
+                            console.log("\n\n" + JSON.stringify(result) + "\n\n");
+                            res.status(200).json({ message: 'Album Deleted successfully'});
+                        }
+                    });
                 } else {
                     res.status(200).json({ error: 'Please choose a Album to Delete' });
                 }
