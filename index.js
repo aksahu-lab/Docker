@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 
-
 const loginroutes = require('./module/useronboard/login/userlogin');
 const regroutes = require('./module/useronboard/regristration/registeration');
 const profileroutes = require('./module/userprofile/userprofile');

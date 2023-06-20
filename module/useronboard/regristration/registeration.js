@@ -18,6 +18,9 @@ regroutes.post('/userRegristration', mediastorage.upload.single('image'), (req, 
                     res.status(500).send('Internal Server Error');
                     return;
                 }
+
+                console.log(`******************* ${req.file.path}`);
+
                 const userCount = results.length;
                 const userId = 'USER_' + (userCount + 1).toString().padStart(4, '0');
                 console.log(`Assigned User ID = ${userId}`);

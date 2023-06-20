@@ -6,6 +6,8 @@ const router = express.Router();
 
 // Create a custom destination directory if it doesn't exist
 const createCustomDirectory = (req, file, cb) => {
+    console.log("==========>>>>>>>>>")
+
     const fileType = file.mimetype;
     var customDirectory;
     // Process the file based on its type
@@ -23,6 +25,7 @@ const createCustomDirectory = (req, file, cb) => {
         customDirectory = `./Media/${req.body.mobilenumber}`
     }
   
+
     fs.mkdirSync(customDirectory, { recursive: true });
     cb(null, customDirectory);
 };
@@ -31,6 +34,8 @@ const createCustomDirectory = (req, file, cb) => {
 const storage = multer.diskStorage({
     destination: createCustomDirectory,
     filename: (req, file, cb) => {
+        console.log("==========>>>>>>>>>")
+
         const originalname = file.originalname;
         const extension = originalname.split('.').pop();
         const filenameWithoutExtension = originalname.slice(0, originalname.lastIndexOf('.'));
