@@ -13,7 +13,7 @@ usrdashboardroutes.post('/createAlbum', multer.none(), (req, res) => {
         if (error == 1) {
             tableCheck.checkUserAlbumTablePresent(result => {
                 if (result == 1) {   
-                    const directoryPath = `./Media/Photo/${req.body.userid}/${req.body.albumName}`;
+                    const directoryPath = `./Media/Photo/${req.body.userId}/${req.body.albumName}`;
                     fs.mkdir(directoryPath, { recursive: true }, (err) => {
                         if (err) {
                             res.status(200).json({ error: 'Internal Server Error' });
