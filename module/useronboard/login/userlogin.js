@@ -7,13 +7,18 @@ const database = require('../../databasemanager/databasemanager');
 const tableCheck = require('../../databasemanager/tablecheck');
 
 
-loginroutes.post('/login', multer.none(), (req, res) => {
+function userlogin(req, res) {
     tableCheck.checkUserTablePresent(resp => {
         if (resp == 1) {
-            database.connection.query("select * from `mystudio`.`user` where mobilenumber = " + `"${req.body.mobilenumber}"`, (error, result, fields)=> {
+            database.connection.query("select * from `mystudio`.`user` where mobilenumber = " + `${req.body.mobilenumber}`, (error, result, fields)=> {
                 if(error){
                     res.status(500).json({ error: 'Internal server error' });
                 } else {
+                    const count = result.length;
+                    if (count < 1) {
+                        res.status(200).json({ error: 'User not found' });
+                        return;
+                    }
                     if (result[0].mobilenumber ==  req.body.mobilenumber) {
                         var jwttoken;
                         jwt.generateToken(result[0], response => {
@@ -27,7 +32,7 @@ loginroutes.post('/login', multer.none(), (req, res) => {
                             email : result[0].email,
                             state : result[0].state,
                             distict : result[0].distict,
-                            profileimage: result[0].profileimage
+                            profileimage: "http://localhost:3000/api/" + result[0].profileimage
                         };
                         res.status(200).json(response);
                     } else {
@@ -40,7 +45,7 @@ loginroutes.post('/login', multer.none(), (req, res) => {
             res.status(200).json({ error: 'You have not registered, please register first.' });
         }
     });
-});
+};
 
 loginroutes.post('/profileimage', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token, response => {
@@ -64,3 +69,4 @@ loginroutes.post('/profileimage', multer.none(), (req, res) => {
 
 
 module.exports = loginroutes;
+module.exports = {userlogin};

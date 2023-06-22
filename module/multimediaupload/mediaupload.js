@@ -6,26 +6,19 @@ const router = express.Router();
 
 // Create a custom destination directory if it doesn't exist
 const createCustomDirectory = (req, file, cb) => {
-    console.log("==========>>>>>>>>>")
-
     const fileType = file.mimetype;
     var customDirectory;
     // Process the file based on its type
     if (fileType.startsWith('image/')) {
         // It's an image file
-        console.log('Image file uploaded');
         customDirectory = `./Media/Photo/${req.body.mobilenumber}`
     } else if (fileType.startsWith('video/')) {
         // It's a video file
-        console.log('Video file uploaded');
         customDirectory = `./Media/Video/${req.body.mobilenumber}`
     } else {
         // It's neither an image nor a video
-        console.log('Unknown file type');
         customDirectory = `./Media/${req.body.mobilenumber}`
     }
-  
-
     fs.mkdirSync(customDirectory, { recursive: true });
     cb(null, customDirectory);
 };
@@ -34,8 +27,6 @@ const createCustomDirectory = (req, file, cb) => {
 const storage = multer.diskStorage({
     destination: createCustomDirectory,
     filename: (req, file, cb) => {
-        console.log("==========>>>>>>>>>")
-
         const originalname = file.originalname;
         const extension = originalname.split('.').pop();
         const filenameWithoutExtension = originalname.slice(0, originalname.lastIndexOf('.'));

@@ -3,10 +3,9 @@ const fs = require('fs');
 
 const database = require('../../databasemanager/databasemanager');
 const tableCheck = require('../../databasemanager/tablecheck');
-const mediastorage = require('../../multimediaupload/mediaupload');
 
 
-regroutes.post('/userRegristration', mediastorage.upload.single('image'), (req, res) => {
+function registeruser(req, res) {
     tableCheck.checkUserTablePresent(result => {
         if (result == 1) {   
             
@@ -18,19 +17,16 @@ regroutes.post('/userRegristration', mediastorage.upload.single('image'), (req, 
                     res.status(500).send('Internal Server Error');
                     return;
                 }
-
-                console.log(`******************* ${req.file.path}`);
-
                 const userCount = results.length;
                 const userId = 'USER_' + (userCount + 1).toString().padStart(4, '0');
                 console.log(`Assigned User ID = ${userId}`);
-                var regSql = "INSERT INTO `mystudio`.`user` (`mobilenumber`, `userId`, `email`, `createdDat`, `usertype`, `password`, `state` , `distict`, `profileimage`) VALUES ?";
+                var regSql = "INSERT INTO `mystudio`.`user` (`mobilenumber`, `userId`, `email`, `createdDate`, `usertype`, `password`, `state` , `distict`, `profileimage`) VALUES ?";
                 var value = [
                     [
                         req.body.mobilenumber,
                         userId,
                         req.body.email,
-                        req.body.createdDat,
+                        req.body.createdDate,
                         "General",
                         req.body.password,
                         req.body.state,
@@ -59,7 +55,7 @@ regroutes.post('/userRegristration', mediastorage.upload.single('image'), (req, 
             res.status(200).json({ error: 'You have not registered, please register first.' });
         }
     });
-});
+};
 
 function deleteFile(file, callback) {
     // Check if the file exists
@@ -73,3 +69,4 @@ function deleteFile(file, callback) {
 }
 
 module.exports = regroutes;
+module.exports = { registeruser }

@@ -1,35 +1,69 @@
 openapi: 3.0.0
 info:
-  title: My API
+  title: My Studio
   version: 1.0.0
-  description: Description of my API
+  description: A Unique Way to create Album
 
 paths:
-  /users:
-    get:
-      summary: Get all users
-      description: Retrieve a list of all users.
+  /api/user/regristration:
+    post:
+      summary: User Regristration
+      description: User can Register Using this.
       tags:
-        - Users
+        - User
       parameters:
-        - name: limit
+        - mobilenumber: limit
           in: query
-          description: The maximum number of users to return.
+          description: Enter mobile number.
           schema:
             type: integer
-            default: 10
+            default: 8895666168
+        - email : limit
+          in: query
+          description: Enter email
+          schema:
+            type: string
+            default: 123@gmail.com
+        - createdDate : limit
+          in: query
+          description: Enter current date
+          schema:
+            type: string
+            default: 10/06/2023
+        - password : limit
+          in: query
+          description: Enter password
+          schema:
+            type: string
+            default: 123
+        - state : limit
+          in: query
+          description: Enter state
+          schema:
+            type: string
+            default: Odisha
+        - distict : limit
+          in: query
+          description: Enter state
+          schema:
+            type: string
+            default: Ganjam
       responses:
         '200':
-          description: Successful response
+          description: You have registered successfully.
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+
+
+paths:
+  /api/user/login:
     post:
-      summary: Create a new user
-      description: Create a new user with the provided details.
+      summary: User Login
+      description: User can Login
       tags:
         - Users
       requestBody:
@@ -45,13 +79,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-
-components:
-  schemas:
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: string
