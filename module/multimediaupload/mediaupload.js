@@ -1,3 +1,9 @@
+//
+//  mediaupload.js
+//
+//  Created by Gyan on 23/06/2023.
+//
+
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
@@ -37,30 +43,6 @@ const storage = multer.diskStorage({
 });
   
 const upload = multer({ storage: storage });
-  
-router.post('/uploadVideo', upload.single('video'), (req, res) => {
-    // Handle the uploaded file
-    // console.log(req.body.user); // Access the uploaded file details
-    res.send('File uploaded successfully');
-});
-  
-router.post('/uploadVideos', upload.array('videos'), (req, res) => {
-    // Handle the uploaded file
-    console.log(req.file); // Access the uploaded file details
-    res.send('File uploaded successfully');
-});
-  
-router.post('/uploadImage', upload.single('image'), (req, res) => {
-    // Handle the uploaded file
-    console.log(req.file); // Access the uploaded file details
-    res.send('File uploaded successfully');
-});
-  
-router.post('/uploadImages', upload.array('images'), (req, res) => {
-    // Handle the uploaded file
-    console.log(req.file); // Access the uploaded file details
-    res.send('File uploaded successfully');
-});
   
 module.exports = router;
 module.exports = {upload};

@@ -1,5 +1,10 @@
-const database = require('../databasemanager/databasemanager');
+//
+//  tablecheck.js -> It will verify the my sql tables
+//
+//  Created by Gyan on 23/06/2023.
+//
 
+const database = require('../databasemanager/databasemanager');
 
 function checkUserTablePresent(myCallback) {
     let checkUserTblExist = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = 'mystudio' AND    table_name = 'user');";
