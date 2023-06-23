@@ -77,15 +77,30 @@ function resetpassword(req, res) {
 };
 
 function updateprofile(req, res) {
-    jwt.verifyToken(req.body.token, response => {
+    jwt.verifyToken(req.body.token, (error, decoded) => {
         res.status(200).json({ message: 'Token Verified successfully -> update profile' });
     });
 };
 
 function getuserprofile(req, res) {
-    jwt.verifyToken(req.body.token, response => {
-        console.log("\n\n********Get profile*******\n\n");
-        res.status(200).json({ message: 'Token Verified successfully -> Get profile' });
+    jwt.verifyToken(req.body.token, (error, decoded)  => {
+        if (error == 1) {            
+            database.connection.query("select * from `mystudio`.`user` where mobilenumber = " + `${decoded.mobilenumber}`, (error, result, fields)=> {
+                if(error){
+                    res.status(500).json({ error: 'Internal server error' });
+                } else {
+                    const count = result.length;
+                    if (count < 1) {
+                        res.status(200).json({ error: 'User not found' });
+                        return;
+                    }
+                    result[0].profileimage = "http://localhost:3000/api/" + result[0].profileimage;
+                    res.status(200).json(result[0]);
+                }
+            });
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
+        }
     });
 };
 
