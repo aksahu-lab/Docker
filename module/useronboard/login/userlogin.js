@@ -76,9 +76,23 @@ function resetpassword(req, res) {
     });
 };
 
+function updateprofile(req, res) {
+    jwt.verifyToken(req.body.token, response => {
+        res.status(200).json({ message: 'Token Verified successfully -> update profile' });
+    });
+};
+
+function getuserprofile(req, res) {
+    jwt.verifyToken(req.body.token, response => {
+        console.log("\n\n********Get profile*******\n\n");
+        res.status(200).json({ message: 'Token Verified successfully -> Get profile' });
+    });
+};
 
 module.exports = loginroutes;
 module.exports = {
                     userlogin,
-                    resetpassword
+                    resetpassword,
+                    updateprofile,
+                    getuserprofile
                 };

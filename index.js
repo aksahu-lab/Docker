@@ -5,7 +5,6 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const YAML = require('yamljs');
 
-const profileroutes = require('./module/userprofile/userprofile');
 const usrdashboardroutes = require('./module/userdashboard/userdashboard');
 
 
@@ -42,10 +41,6 @@ app.use('/api/Media', (req, res) => {
   //   }
   // });
 
-});
-
-app.use('/api/profile', profileroutes, (req, res) => {
-  console.log('*** profileroutes');
 });
 
 app.use('/api/dashboard', usrdashboardroutes, (req, res) => {

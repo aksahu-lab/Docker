@@ -34,6 +34,20 @@ function redirecttoactualrouter(req, res) {
                 loginroutes.resetpassword(req, res);
             });
             break;
+        case '/updateprofile':
+            console.log("updateprofile");
+            multer.none()(req, res, () => {
+                const loginroutes = require('./login/userlogin');
+                loginroutes.updateprofile(req, res);
+            });
+            break;
+        case '/getProfile':
+            console.log("Get Profile");
+            multer.none()(req, res, () => {
+                const loginroutes = require('./login/userlogin');
+                loginroutes.getuserprofile(req, res);
+            });
+            break;
         default:
             console.log("No API");
     }
