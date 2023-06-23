@@ -1,3 +1,9 @@
+//
+//  jwtmanager.js
+//
+//  Created by Gyan on 23/06/2023.
+//
+
 const jwt = require('jsonwebtoken');
 
 const secretKey = 'qwertyuiop';

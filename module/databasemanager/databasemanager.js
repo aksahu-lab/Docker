@@ -1,3 +1,9 @@
+//
+//  databasemanager.js
+//
+//  Created by Gyan on 23/06/2023.
+//
+
 const express = require('express');
 const mysql = require('mysql');
 
