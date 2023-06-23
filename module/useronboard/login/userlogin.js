@@ -1,3 +1,13 @@
+//
+//  Login ->
+//      1. userlogin
+//      2. resetpassword
+//      3. updateprofile
+//      4. getuserprofile
+//
+//  Created by Gyan on 23/06/2023.
+//
+
 const loginroutes = require('express').Router();
 
 const jwt = require('../../security/jwt/jwtmanager');
