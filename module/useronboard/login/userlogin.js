@@ -4,7 +4,13 @@ const jwt = require('../../security/jwt/jwtmanager');
 const database = require('../../databasemanager/databasemanager');
 const tableCheck = require('../../databasemanager/tablecheck');
 
-
+/*
+-* This function is used to Login the user.
+    The below points need to consider while change the function
+    -> First we need to check wether the user table is present or not.
+    -> If present find the User using the primary key :(In current implementation Mobile Number is the primary key)
+    -> match the password then send the user details as response.
+*/
 function userlogin(req, res) {
     tableCheck.checkUserTablePresent(resp => {
         if (resp == 1) {
@@ -17,7 +23,8 @@ function userlogin(req, res) {
                         res.status(200).json({ error: 'User not found' });
                         return;
                     }
-                    if (result[0].mobilenumber ==  req.body.mobilenumber) {
+                    console.log(result[0].password);
+                    if (result[0].password ==  req.body.password) {
                         var jwttoken;
                         jwt.generateToken(result[0], response => {
                             jwttoken = response;
@@ -34,8 +41,7 @@ function userlogin(req, res) {
                         };
                         res.status(200).json(response);
                     } else {
-
-                        res.status(200).json({ error: 'You have not registered, please register first.'});
+                        res.status(200).json({ error: 'Please Enter a correct password.'});
                     }
                 }
             });
@@ -45,6 +51,13 @@ function userlogin(req, res) {
     });
 };
 
+/*
+-* This function is used to Reset the user password.
+    The below points need to consider while change the function
+    -> First we need to verify the jwt token.
+    -> Get the user details based on mobile number.
+    -> match the password then update the password for the same user.
+*/
 function resetpassword(req, res) {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {            
@@ -76,12 +89,19 @@ function resetpassword(req, res) {
     });
 };
 
+/*
+-* This function is used to Update Profile.
+    The below points need to consider 
+*/
 function updateprofile(req, res) {
     jwt.verifyToken(req.body.token, (error, decoded) => {
         res.status(200).json({ message: 'Token Verified successfully -> update profile' });
     });
 };
 
+/*
+-* This function is used to Get the user Profile.
+*/
 function getuserprofile(req, res) {
     jwt.verifyToken(req.body.token, (error, decoded)  => {
         if (error == 1) {            
@@ -103,6 +123,7 @@ function getuserprofile(req, res) {
         }
     });
 };
+
 
 module.exports = loginroutes;
 module.exports = {
