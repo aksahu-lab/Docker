@@ -8,9 +8,7 @@ const tableCheck = require('../../databasemanager/tablecheck');
 function registeruser(req, res) {
     tableCheck.checkUserTablePresent(result => {
         if (result == 1) {   
-            
             const sql = `SELECT COUNT(*) AS mystudio FROM user`;
-
             // Execute the query to get the user count
             database.connection.query(sql, (err, results) => {
                 if (err) {

@@ -19,11 +19,11 @@ usrdashboardroutes.post('/createAlbum', multer.none(), (req, res) => {
                             res.status(400).json({ error: 'Internal Server Error' });
                         } else {
                             var regSql = "INSERT INTO `mystudio`.`useralbum` (`userId`, `createdDate`, `eventDate`, `albumName`, `eventType`, `albumpath`) VALUES ?";
-                            const formattedDate = getCurrentDate();                            
+                            const generatedDate = getCurrentDate();                            
                             var value = [
                                 [
                                     req.body.userId,
-                                    formattedDate,
+                                    generatedDate,
                                     req.body.eventDate,
                                     req.body.albumName,
                                     req.body.eventType,

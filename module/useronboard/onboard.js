@@ -6,7 +6,7 @@ const mediastorage = require('../multimediaupload/mediaupload');
 function redirecttoactualrouter(req, res) {
     console.log(req.url);
     switch (req.url) {
-        case '/regristration':
+        case '/register':
             console.log("Regristration");
             mediastorage.upload.single('image')(req, res, () => {
                 const regroutes = require('./regristration/registeration');
@@ -18,6 +18,20 @@ function redirecttoactualrouter(req, res) {
             multer.none()(req, res, () => {
                 const loginroutes = require('./login/userlogin');
                 loginroutes.userlogin(req, res);
+            });
+            break;
+        case '/forgotpassword':
+            console.log("forgotpassword");
+            multer.none()(req, res, () => {
+                const loginroutes = require('./login/userlogin');
+                loginroutes.userlogin(req, res);
+            });
+            break;
+        case '/resetpassword':
+            console.log("resetpassword");
+            multer.none()(req, res, () => {
+                const loginroutes = require('./login/userlogin');
+                loginroutes.resetpassword(req, res);
             });
             break;
         default:

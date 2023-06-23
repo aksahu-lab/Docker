@@ -1,6 +1,4 @@
 const loginroutes = require('express').Router();
-const multer = require('multer')();
-const fs = require('fs');
 
 const jwt = require('../../security/jwt/jwtmanager');
 const database = require('../../databasemanager/databasemanager');
@@ -47,26 +45,40 @@ function userlogin(req, res) {
     });
 };
 
-loginroutes.post('/profileimage', multer.none(), (req, res) => {
-    jwt.verifyToken(req.body.token, response => {
-        if (response == 1) {
-            const { imagePath } = req.body;        
-            // Check if the file exists
-            if (fs.existsSync(`/Users/hritvik/Documents/My_Projects/MyStudio/${imagePath}`)) {
-                // Set the appropriate headers for the response
-                res.setHeader('Content-Type', 'image/jpeg');
-                res.setHeader('Content-Disposition', 'attachment; filename=image.jpg');
-            
-                // Read the file and send it as the response
-                fs.createReadStream(`/Users/hritvik/Documents/My_Projects/MyStudio/${imagePath}`).pipe(res);
-            } else {
-                console.log("********* Profile Image ********* " + `/Users/hritvik/Documents/My_Projects/MyStudio/${imagePath}`);
-                res.status(404).send('Image not found');
-            }
+function resetpassword(req, res) {
+    jwt.verifyToken(req.body.token , (error, decoded) => {
+        if (error == 1) {            
+            database.connection.query("select * from `mystudio`.`user` where mobilenumber = " + `${decoded.mobilenumber}`, (error, result, fields)=> {
+                if(error){
+                    res.status(500).json({ error: 'Internal server error' });
+                } else {
+                    const count = result.length;
+                    if (count < 1) {
+                        res.status(200).json({ error: 'User not found' });
+                        return;
+                    }
+                    if (result[0].password == req.body.currentpassword) {  
+                        const query = 'UPDATE `mystudio`.`user` SET `password` = ? WHERE (`mobilenumber` = ?)';
+                        database.connection.query(query, [req.body.newpassword, decoded.mobilenumber], (error, results) => {
+                            if (error) {
+                                console.error('Error updating password: ' + error.stack);
+                                return;
+                            }
+                            console.log('Password updated successfully.');
+                            res.status(200).json({ message: 'Password updated successfully.' });
+                        });
+                    }
+                }
+            });
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
         }
     });
-});
+};
 
 
 module.exports = loginroutes;
-module.exports = {userlogin};
+module.exports = {
+                    userlogin,
+                    resetpassword
+                };
