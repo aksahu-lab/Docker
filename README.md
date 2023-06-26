@@ -54,3 +54,6 @@ https://support.atlassian.com/bitbucket-cloud/docs/configure-ssh-and-two-step-ve
 
 API Details Doc
 http://localhost:3000/api-docs/
+
+Starte Mongo DB
+./mongod --dbpath /Users/hritvik/Documents/MongoDbDataBase/data/db (/data/db -> path)
