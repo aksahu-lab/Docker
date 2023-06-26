@@ -33,7 +33,6 @@ function userlogin(req, res) {
                         res.status(200).json({ error: 'User not found' });
                         return;
                     }
-                    console.log(result[0].password);
                     if (result[0].password ==  req.body.password) {
                         var jwttoken;
                         jwt.generateToken(result[0], response => {

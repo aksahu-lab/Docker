@@ -39,18 +39,10 @@ app.use('/api/Media', (req, res) => {
       res.status(404).send('File not found');
     }
   });
-
-  // res.sendFile(filePath, (err) => {
-  //   if (err) {
-  //     console.error('Error sending file:', err);
-  //     res.status(404).send('File not found');
-  //   }
-  // });
-
 });
 
 app.use('/api/dashboard', usrdashboardroutes, (req, res) => {
-  console.log('*** profileroutes');
+  console.log('*** Dashboard');
 });
 
 app.get('/', (req, res) => { });

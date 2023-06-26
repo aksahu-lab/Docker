@@ -11,7 +11,7 @@ const secretKey = 'qwertyuiop';
 function generateToken(req, callback) {
     const payload = {
         password: req.password,
-        mobilenumber: req.mobilenumber
+        userId: req.userId
     };
     const token = jwt.sign(payload, secretKey, { expiresIn: '1h' });
     callback(token);

@@ -62,7 +62,7 @@ function checkUserAlbumTablePresent(myCallback) {
 }
 
 function creatUserAlbumTable(myCallback) {
-    let createTablesqlQ = "CREATE TABLE `mystudio`.`useralbum` (`userId` VARCHAR(45) NOT NULL, `createdDate` VARCHAR(45) NULL, `eventDate` VARCHAR(45) NULL, `albumName` VARCHAR(45) NULL, `eventType` VARCHAR(150) NULL, `albumpath` VARCHAR(150) NULL);";
+    let createTablesqlQ = "CREATE TABLE `mystudio`.`useralbum` (`userId` VARCHAR(45) NOT NULL, `albumId` VARCHAR(45) NOT NULL, `createdDate` VARCHAR(45) NULL, `eventDate` VARCHAR(45) NULL, `albumName` VARCHAR(45) NULL, `eventType` VARCHAR(150) NOT NULL, `albumpath` VARCHAR(150) NULL);";
     database.connection.query(createTablesqlQ, (error, result, fields)=> {
         myCallback(0);
         return;

@@ -23,7 +23,6 @@ function registeruser(req, res) {
                 }
                 const userCount = results.length;
                 const userId = 'USER_' + (userCount + 1).toString().padStart(4, '0');
-                console.log(`Assigned User ID = ${userId}`);
                 var regSql = "INSERT INTO `mystudio`.`user` (`mobilenumber`, `userId`, `email`, `createdDate`, `usertype`, `password`, `state` , `distict`, `profileimage`) VALUES ?";
                 var value = [
                     [
