@@ -4,45 +4,55 @@
 //  Created by Gyan on 23/06/2023.
 //
 
-const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
+const path = require('path');
 
-const router = express.Router();
+class FileUtility {
+  constructor(uploadDir) {
+    this.uploadDir = uploadDir;
+    this.initializeStorage();
+  }
 
-// Create a custom destination directory if it doesn't exist
-const createCustomDirectory = (req, file, cb) => {
-    const fileType = file.mimetype;
-    var customDirectory;
-    // Process the file based on its type
-    if (fileType.startsWith('image/')) {
-        // It's an image file
-        customDirectory = `./Media/Photo/${req.body.mobilenumber}`
-    } else if (fileType.startsWith('video/')) {
-        // It's a video file
-        customDirectory = `./Media/Video/${req.body.mobilenumber}`
-    } else {
-        // It's neither an image nor a video
-        customDirectory = `./Media/${req.body.mobilenumber}`
-    }
-    fs.mkdirSync(customDirectory, { recursive: true });
-    cb(null, customDirectory);
-};
+  initializeStorage() {
+    console.log("\n\n Multiple Upload \n\n Path == " + this.uploadDir);
 
-// Multer configuration
-const storage = multer.diskStorage({
-    destination: createCustomDirectory,
-    filename: (req, file, cb) => {
-        const originalname = file.originalname;
-        const extension = originalname.split('.').pop();
-        const filenameWithoutExtension = originalname.slice(0, originalname.lastIndexOf('.'));
-        const currentTimeInMilliseconds = Date.now();
-        let newFilename = `${filenameWithoutExtension}_${currentTimeInMilliseconds}.${extension}`;
-        cb(null, newFilename);
+    const storage = multer.diskStorage({
+      destination: (req, file, cb) => {
+        cb(null, this.uploadDir);
+      },
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + '-' + file.originalname);
       }
-});
-  
-const upload = multer({ storage: storage });
-  
-module.exports = router;
-module.exports = {upload};
+    });
+
+    this.upload = multer({ storage });
+  }
+
+  uploadSingleFile(fieldName) {
+    return this.upload.single(fieldName);
+  }
+
+  uploadMultipleFiles(fieldName, maxCount) {
+    console.log("\n\n Multiple Upload \n\n " + fieldName + " == Max Count : " + maxCount );
+    return this.upload.array(fieldName, maxCount);
+  }
+
+  downloadFile(req, res, filePath, fileName) {
+    const fullPath = path.join(filePath, fileName);
+
+    if (fs.existsSync(fullPath)) {
+      res.download(fullPath, fileName, (err) => {
+        if (err) {
+          console.error('Error downloading file:', err);
+          res.status(500).json({ error: 'Failed to download file' });
+        }
+      });
+    } else {
+      res.status(404).json({ error: 'File not found' });
+    }
+  }
+}
+
+module.exports = FileUtility;

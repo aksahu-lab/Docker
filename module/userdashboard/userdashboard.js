@@ -10,8 +10,11 @@ const fs = require('fs');
 
 const jwt = require('../security/jwt/jwtmanager');
 const mongodatabase = require('../databasemanager/mongodbmanager');
-// const tableCheck = require('../databasemanager/tablecheck');
 
+const albumPath = `./Media/`;
+
+const FileUtility = require('../multimediaupload/mediaupload');
+const fileUtility = new FileUtility(albumPath);
 
 usrdashboardroutes.post('/createAlbum', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
@@ -119,43 +122,51 @@ usrdashboardroutes.post('/renameAlbum', multer.none(), (req, res) => {
     })
 });
 
-
-usrdashboardroutes.post('/savefilestoalbum', multer.array('files'), (req, res) => {
+usrdashboardroutes.post('/savefilestoalbum',  fileUtility.uploadMultipleFiles(`files`, 5), function (req, res) {
+    // console.log("\n\n" + req.body.token);
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {                  
-            const query = { userId: decoded.userId, albumName: req.body.albumName };
+            const query = { userId: decoded.userId, albumID: req.body.albumID, albumName: req.body.albumName };
             mongodatabase.findDocuments("useralbum", query)
             .then(documents => {
-                console.log(documents);
-
-                const albumPath = `./Media/${decoded.userId}/${req.body.albumName}`;
-                const generatedDate = getCurrentDate();                                                                
-                const document = { 
-                    userId: decoded.userId, 
-                    albumName: req.body.newName, 
-                    albumID: "Mystudio_" + decoded.userId, 
-                    generatedDate: generatedDate,
-                    eventDate: req.body.eventDate,
-                    eventType: req.body.eventType,
-                    albumPath: albumPath,
-                    files: [
-                        {
-                            filename: "aaa",
-                            filepath:  "http://localhost:3000/api/"
-                        }
-                    ]
-                };  
-
-                res.status(200).json({ message: 'Album Renamed Successful...' });
+                if (documents.length == 0) {
+                    res.status(400).json({ message: "Something Went Wrong!!.."});
+                } else {
+                    const albumPath = `Media/${decoded.userId}/${req.body.albumName}`;
+                    const FileHandler = require('../multimediaupload/FileHandler');
+                    const fileHandler = new FileHandler();
+                    var updateDoc = documents[0];
+                    // var fileInfo = documents[0].files;
+                    req.files.forEach((file) => {
+                        // Move a file
+                        fileHandler.moveFile(`${file.path}`, `${albumPath}/${file.filename}`);
+                        updateDoc.files.push({
+                            filename: file.originalname,
+                            filepath: `${albumPath}/${file.filename}`
+                        });
+                    });
+                    // const generatedDate = getCurrentDate();                                                                
+                    // updateDoc.files = fileInfo;  
+                    mongodatabase.updateDocument("useralbum", query, updateDoc)
+                    .then(documents => {
+                        // File upload completed successfully
+                        return res.status(200).json({ message: 'Files Stored Successfull...' });
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        res.status(400).json({ error: 'Failed to Store The Album files...' });
+                    });
+                }
             })
             .catch(error => {
-                res.status(400).json({ error: 'Failed to Rename The Album...' });
+                console.log(error);
+                res.status(400).json({ error: 'Failed to Store The Album files...' });
             });
-
+        } else {
+            res.status(400).json({ error: 'Session Expired' });
         }
     })
 });
-
 
 
 
