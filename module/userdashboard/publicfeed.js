@@ -41,7 +41,8 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
                             description: req.body.description,
                             posttype: req.body.posttype,
                             files: [],
-                            likes: []
+                            likes: [],
+                            comments: []
                         };
                         req.files.forEach((file) => {
                             // Move a file
@@ -159,6 +160,25 @@ publicfeedrote.post('/likefeed', multer.none(), (req, res) => {
     })
 });
 
+publicfeedrote.post('/commentfeed', multer.none(), (req, res) => {
+    jwt.verifyToken(req.body.token , (error, decoded) => {
+        if (error == 1) {
+            
+            mongodatabase.commentOnFeed(req.body.feedId, decoded.userId, req.body.comment)
+            .then(response => {
+                // File upload completed successfully
+                return res.status(200).json({ message: response});
+            })
+            .catch(error => {
+                console.log(error);
+                res.status(400).json({ error: 'Failed to Store The Album files...' });
+            });
+            
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
+        }
+    })
+});
 
 function getCurrentDate() {
     const currentDate = new Date();

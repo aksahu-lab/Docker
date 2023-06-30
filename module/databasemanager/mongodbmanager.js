@@ -126,6 +126,39 @@ const likeUnlikeComment = async (feedId, userId, like) => {
   }
 };
 
+// Function to comment on a feed
+const commentOnFeed = async (feedId, userId, commentText) => {
+  try {
+    const db = await connectToMongoDB();
+    const collection = db.collection('publicfeeds');
+
+    // Retrieve the feed
+    const feed = await collection.findOne({ feedId: feedId });
+
+    if (!feed) {
+      console.log('Feed not found.');
+      return;
+    }
+
+    // Create a new comment object
+    const newComment = {
+      userId: userId,
+      commentText: commentText
+    };
+
+    // Add the comment to the feed's comments array
+    feed.comments.push(newComment);
+
+    // Update the feed with the new comment
+    await collection.updateOne({ feedId: feedId }, { $set: { comments: feed.comments } });
+
+    return 'Comment added successfully.';
+  } catch (error) {
+    console.error('Failed to comment on feed:', error);
+    throw error;
+  }
+};
+
 
 module.exports = {
   connectToMongoDB,
@@ -134,5 +167,6 @@ module.exports = {
   updateDocument,
   deleteDocument,
   collectionDataCount,
-  likeUnlikeComment
+  likeUnlikeComment,
+  commentOnFeed
 };
