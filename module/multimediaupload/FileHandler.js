@@ -43,12 +43,12 @@ class FileHandler {
     console.log('File saved to directory successfully.');
   }
 
-  deleteDirectory(filePath) {
+  deleteDirectory(filePath, res) {
     const file = path.join(this.baseDirectory, filePath);
-    fs.rmdir(file, { recursive: true }, (err) => {
+    fs.rm(file, { recursive: true }, (err) => {
       if (err) {
-        console.error('Failed to delete directory:', err);
-        throw err;
+        res.status(500).json({ error: 'Failed to delete directory' });
+        return;
       }
       console.log('Directory deleted successfully:', file);
     });
