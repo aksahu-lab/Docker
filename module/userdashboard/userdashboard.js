@@ -142,7 +142,7 @@ usrdashboardroutes.post('/savefilestoalbum',  fileUtility.uploadMultipleFiles(`f
                         fileHandler.moveFile(`${file.path}`, `${albumPath}/${file.filename}`);
                         updateDoc.files.push({
                             filename: file.originalname,
-                            filepath: `${albumPath}/${file.filename}`
+                            filepath: "http://localhost:3000/api/" + `${albumPath}/${file.filename}`
                         });
                     });
                     // const generatedDate = getCurrentDate();                                                                
@@ -167,10 +167,6 @@ usrdashboardroutes.post('/savefilestoalbum',  fileUtility.uploadMultipleFiles(`f
         }
     })
 });
-
-
-
-
 
 function deleteDirectory(directoryPath, callback) {
     if (fs.existsSync(directoryPath)) {

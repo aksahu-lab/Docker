@@ -76,10 +76,27 @@ const deleteDocument = async (collectionName, query) => {
   }
 };
 
+// Function to GET COllection document count
+const collectionDataCount = async (collectionName) => {
+  try {
+    const db = await connectToMongoDB();
+    const collection = db.collection(collectionName);
+    // Get the count of documents in the collection
+    console.log("\nDocuemnt Count  ==>> " + collectionName);
+    const count = await collection.countDocuments();
+    return count;
+  } catch (error) {
+    console.error('Failed to delete document:', error);
+    throw error;
+  }
+};
+
+
 module.exports = {
   connectToMongoDB,
   insertDocument,
   findDocuments,
   updateDocument,
-  deleteDocument
+  deleteDocument,
+  collectionDataCount
 };

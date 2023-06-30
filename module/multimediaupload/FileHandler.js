@@ -42,6 +42,18 @@ class FileHandler {
     fs.writeFileSync(destinationFile, file.buffer);
     console.log('File saved to directory successfully.');
   }
+
+  deleteDirectory(filePath) {
+    const file = path.join(this.baseDirectory, filePath);
+    fs.rmdir(file, { recursive: true }, (err) => {
+      if (err) {
+        console.error('Failed to delete directory:', err);
+        throw err;
+      }
+      console.log('Directory deleted successfully:', file);
+    });
+  }
+
 }
 
 module.exports = FileHandler;

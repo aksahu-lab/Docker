@@ -12,6 +12,7 @@ const swaggerJsdoc = require('swagger-jsdoc');
 const YAML = require('yamljs');
 
 const usrdashboardroutes = require('./module/userdashboard/userdashboard');
+const publicfeedsroute = require('./module/userdashboard/publicfeed');
 
 
 // Load and parse the Swagger specification file
@@ -43,6 +44,10 @@ app.use('/api/Media', (req, res) => {
 
 app.use('/api/dashboard', usrdashboardroutes, (req, res) => {
   console.log('*** Dashboard');
+});
+
+app.use('/api/userfeeds', publicfeedsroute, (req, res) => {
+  console.log('*** public feeds route *****');
 });
 
 app.get('/', (req, res) => { });
