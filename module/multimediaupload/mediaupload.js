@@ -4,6 +4,7 @@
 //  Created by Gyan on 23/06/2023.
 //
 
+
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +16,7 @@ class FileUtility {
   }
 
   initializeStorage() {
-    console.log("\n\n Multiple Upload \n\n Path == " + this.uploadDir);
+    console.log("\n\n Multiple Upload \n\n Path ==>>>> " + this.uploadDir);
 
     const storage = multer.diskStorage({
       destination: (req, file, cb) => {

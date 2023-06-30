@@ -90,9 +90,6 @@ usrdashboardroutes.post('/renameAlbum', multer.none(), (req, res) => {
         if (error == 1) {
             const oldPath = `./Media/${decoded.userId}/${req.body.albumName}`;
             const newPath = `./Media/${decoded.userId}/${req.body.newName}`;
-
-            console.log("Album rename..........");
-
             renameDirectory(oldPath, newPath, result => {
                 if (result == 1) {
                     const generatedDate = getCurrentDate();                                                                

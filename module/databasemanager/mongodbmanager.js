@@ -91,6 +91,41 @@ const collectionDataCount = async (collectionName) => {
   }
 };
 
+// Function to like/unlike a comment
+const likeUnlikeComment = async (feedId, userId, like) => {
+  try {
+    const db = await connectToMongoDB();
+    const collection = db.collection('publicfeeds');
+    // Retrieve the comment
+    const comment = await collection.findOne({ feedId: feedId });
+
+    if (!comment) {
+      console.log('Comment not found.');
+      return;
+    }
+
+    // Check if the user has already liked the comment
+    const userIndex = comment.likes.indexOf(userId);
+    if (like === `1` && userIndex === -1) {
+      comment.likes.push(userId);
+    } else if (like === `0` && userIndex !== -1) {
+      comment.likes.splice(userIndex, 1);
+    } else {
+      console.log('Invalid like/unlike operation.');
+      return;
+    }
+
+    // Update the comment
+    await collection.updateOne({ feedId: feedId }, { $set: { likes: comment.likes } }); // likesCount: comment.likesCount
+    const message = like === `0` ? 'Unliked' : 'Liked';
+
+    return `${message} the feed.`;
+  } catch (error) {
+    console.error('Failed to like/unlike comment:', error);
+    throw error;
+  }
+};
+
 
 module.exports = {
   connectToMongoDB,
@@ -98,5 +133,6 @@ module.exports = {
   findDocuments,
   updateDocument,
   deleteDocument,
-  collectionDataCount
+  collectionDataCount,
+  likeUnlikeComment
 };

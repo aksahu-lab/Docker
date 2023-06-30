@@ -5,6 +5,8 @@
 //
 
 const publicfeedrote = require('express').Router();
+const multer = require('multer')();
+
 const fs = require('fs');
 
 const jwt = require('../security/jwt/jwtmanager');
@@ -38,7 +40,8 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
                             albumPath: albumPath,
                             description: req.body.description,
                             posttype: req.body.posttype,
-                            files: []
+                            files: [],
+                            likes: []
                         };
                         req.files.forEach((file) => {
                             // Move a file
@@ -72,50 +75,38 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
 });
 
 publicfeedrote.post('/updatefeed', fileUtility.uploadMultipleFiles(`files`, 5), (req, res) => {
-    console.log("___=========");
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
-            const albumPath = `Media/publicfeeds/`;
-            fs.mkdir(albumPath, { recursive: true }, (err) => {
-                if (err) {
-                    res.status(400).json({ error: 'Internal Server Error' });
-                } else {
-                    const FileHandler = require('../multimediaupload/FileHandler');
-                    const fileHandler = new FileHandler();
-                    var updateDoc = [];
-                    const generatedDate = getCurrentDate();  
-                    mongodatabase.collectionDataCount("publicfeeds")
-                    .then(count => {
-                        updateDoc = { 
-                            userId: decoded.userId, 
-                            feedId: `Mystudio_${count}_` + decoded.userId, 
-                            generatedDate: generatedDate,
-                            albumPath: albumPath,
-                            files: []
-                        };
-                        req.files.forEach((file) => {
-                            // Move a file
-                            fileHandler.moveFile(`${file.path}`, `${albumPath}/${file.filename}`);
-                            updateDoc.files.push({
-                                filename: file.originalname,
-                                filepath: "http://localhost:3000/api/" + `${albumPath}/${file.filename}`
-                            });
-                        });
-                        mongodatabase.insertDocument("publicfeeds", updateDoc)
-                        .then(documents => {
-                            // File upload completed successfully
-                            return res.status(200).json({ message: 'Files Stored Successfull...' });
-                        })
-                        .catch(error => {
-                            console.log(error);
-                            res.status(400).json({ error: 'Failed to Store The Album files...' });
-                        });
-                    })
-                    .catch (error => {
-                        console.log(error);
-                        res.status(400).json({ error: 'Failed to Store The Album files...' });
-                    });
-                }
+            console.log("\n\nUpdate Post : " + JSON.stringify(req.body) + "\n\n");
+            const FileHandler = require('../multimediaupload/FileHandler');
+            const fileHandler = new FileHandler();
+
+            var updateDoc = { 
+                userId: decoded.userId, 
+                feedId: req.body.feedId, 
+                albumPath: req.body.albumPath,
+                description: req.body.description,
+                posttype: req.body.posttype,
+            };
+
+            req.files.forEach((file) => {
+                // Move a file
+                fileHandler.moveFile(`${file.path}`, `${albumPath}/${file.filename}`);
+                updateDoc.files.push({
+                    filename: file.originalname,
+                    filepath: "http://localhost:3000/api/" + `${albumPath}/${file.filename}`
+                });
+            });
+            const query = { userId: decoded.userId, feedId: req.body.feedId };
+
+            mongodatabase.updateDocument("publicfeeds", query, updateDoc)
+            .then(documents => {
+                // File upload completed successfully
+                return res.status(200).json({ message: 'Files Stored Successfull...' });
+            })
+            .catch(error => {
+                console.log(error);
+                res.status(400).json({ error: 'Failed to Store The Album files...' });
             });
         } else {
             res.status(200).json({ message: 'Token Expired'});
@@ -141,6 +132,27 @@ publicfeedrote.post('/deletefeed', fileUtility.uploadMultipleFiles(`files`, 5), 
                     res.status(500).json({ error: 'Failed to delete directory' });
                 }
             });
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
+        }
+    })
+});
+
+
+publicfeedrote.post('/likefeed', multer.none(), (req, res) => {
+    jwt.verifyToken(req.body.token , (error, decoded) => {
+        if (error == 1) {
+            
+            mongodatabase.likeUnlikeComment(req.body.feedId, decoded.userId, req.body.like)
+            .then(response => {
+                // File upload completed successfully
+                return res.status(200).json({ message: response});
+            })
+            .catch(error => {
+                console.log(error);
+                res.status(400).json({ error: 'Failed to Store The Album files...' });
+            });
+            
         } else {
             res.status(200).json({ message: 'Token Expired'});
         }

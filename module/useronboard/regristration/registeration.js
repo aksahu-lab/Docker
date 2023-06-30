@@ -11,18 +11,20 @@ const database = require('../../databasemanager/databasemanager');
 const tableCheck = require('../../databasemanager/tablecheck');
 
 
-function registeruser(req, res) {
+function registeruser(req, res, path) {
     tableCheck.checkUserTablePresent(result => {
         if (result == 1) {   
-            const sql = `SELECT COUNT(*) AS mystudio FROM user`;
+            // const sql = `SELECT COUNT(*) AS mystudio FROM user`;
+            const sql = `SELECT COUNT(*) AS total FROM user`;
+
             // Execute the query to get the user count
             database.connection.query(sql, (err, results) => {
                 if (err) {
                     res.status(500).send('Internal Server Error');
                     return;
                 }
-                const userCount = results.length;
-                const userId = 'USER_' + (userCount + 1).toString().padStart(4, '0');
+                const userCount = results[0].total;
+                const userId = 'USER_' + (userCount + 1).toString().padStart(7, '0');
                 var regSql = "INSERT INTO `mystudio`.`user` (`mobilenumber`, `userId`, `email`, `createdDate`, `usertype`, `password`, `state` , `distict`, `profileimage`) VALUES ?";
                 var value = [
                     [
@@ -34,7 +36,7 @@ function registeruser(req, res) {
                         req.body.password,
                         req.body.state,
                         req.body.distict,
-                        req.file.path
+                        path
                     ]
                 ];
                 database.connection.query(regSql, [value], (error, result, fields)=> {

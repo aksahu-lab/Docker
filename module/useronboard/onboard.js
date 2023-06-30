@@ -6,18 +6,41 @@
 
 const onboardroutes = require('express').Router();
 const multer = require('multer')();
-
-const mediastorage = require('../multimediaupload/mediaupload');
+const fs = require('fs');
 
 function redirecttoactualrouter(req, res) {
     console.log(req.url);
     switch (req.url) {
         case '/register':
             console.log("Regristration");
-            mediastorage.upload.single('image')(req, res, () => {
-                const regroutes = require('./regristration/registeration');
-                regroutes.registeruser(req, res);
-            });
+                const albumPath = `./Media/Profile/`;
+                fs.mkdir(albumPath, { recursive: true }, (err) => {
+                    if (err) {
+                        res.status(400).json({ error: 'Internal Server Error' });
+                    } else {
+                        const FileUtility = require('../multimediaupload/mediaupload');
+
+                        const fileUtil = new FileUtility(albumPath);
+                        const fieldName = 'file'; // The name of the field in the form data
+            
+                        // Call uploadSingleFile as a function
+                        const uploadFunction = fileUtil.uploadSingleFile(fieldName);
+            
+                        // Call the upload function by passing the request object
+                        uploadFunction(req, res, function(err) {
+                            if (err) {
+                                console.error('Error uploading file:', err);
+                                // Handle the error
+                            } else {
+                                // File uploaded successfully
+                                // Handle the success case
+                                console.log("\n\n--------------------------------------------------------\n\n");
+                                const regroutes = require('./regristration/registeration');
+                                regroutes.registeruser(req, res, '../../Media');
+                            }
+                        });
+                    }
+                });
             break;
         case '/login':
             console.log("login");
