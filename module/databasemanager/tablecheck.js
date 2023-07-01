@@ -31,7 +31,7 @@ function checkUserTablePresent(myCallback) {
 
 function creatUserTable(myCallback) {
     console.log("Creat User Table");
-    let createTablesqlQ = "CREATE TABLE `mystudio`.`user` ( `username` VARCHAR(25) NOT NULL, `userId` VARCHAR(20) NOT NULL, `createdDate` VARCHAR(25) NULL, `usertype` VARCHAR(20) NULL, `password` VARCHAR(15) NULL, `profileimage` VARCHAR(150) NULL, `firstname` VARCHAR(20) NULL, `lastname` VARCHAR(20) NULL, `gender` VARCHAR(10) NULL, `city` VARCHAR(30) NULL, PRIMARY KEY (`username`));"
+    let createTablesqlQ = "CREATE TABLE `mystudio`.`user` ( `username` VARCHAR(25) NOT NULL, `userId` VARCHAR(20) NOT NULL UNIQUE, `createdDate` VARCHAR(25) NULL, `usertype` VARCHAR(20) NULL, `password` VARCHAR(15) NULL, `profileimage` VARCHAR(150) NULL, `firstname` VARCHAR(20) NULL, `lastname` VARCHAR(20) NULL, `gender` VARCHAR(10) NULL, `city` VARCHAR(30) NULL, PRIMARY KEY (`username`));"
     database.connection.query(createTablesqlQ, (error, result, fields)=> {
         console.log(error);
         console.log(result);

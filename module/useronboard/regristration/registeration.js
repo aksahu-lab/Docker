@@ -27,11 +27,22 @@ function registeruser(req, res, path) {
                 const userCount = results[0].total;
 
                 const { v4: uuidv4 } = require('uuid');
-                const userId = uuidv4().replace(/-/g, userCount + 1).substr(0, 16);
+                const userId = uuidv4().replace(/-/g, '').slice(0, 16);
                 console.log(userId);
                 
                 // const userId = 'USER_' + (userCount + 1).toString().padStart(7, '0');
                 const currentDate = new Date();
+                
+
+                if (path && path.path) {
+                    // Access the path property
+                    console.log(path);
+                    profileImagePath = path;
+                } else {
+                    // Handle the case where the object or path property is undefined
+                    console.log("Object or path property is undefined");
+                    profileImagePath = `./Media/DefaultProfile/profile_placeholder.png`;
+                }
 
                 var regSql = "INSERT INTO `mystudio`.`user` (`username`, `userId`, `createdDate`, `usertype`, `password`, `profileimage`, `firstname`, `lastname`, `gender`, `city`) VALUES ?";
                 var value = [
@@ -41,7 +52,7 @@ function registeruser(req, res, path) {
                         currentDate,
                         "General",
                         req.body.password,
-                        path,
+                        profileImagePath,
                         req.body.firstname, 
                         req.body.lastname,
                         req.body.gender, 

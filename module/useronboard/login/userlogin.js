@@ -70,8 +70,10 @@ function userlogin(req, res) {
 */
 function resetpassword(req, res) {
     jwt.verifyToken(req.body.token , (error, decoded) => {
-        if (error == 1) {            
-            database.connection.query("select * from `mystudio`.`user` where mobilenumber = " + `${decoded.mobilenumber}`, (error, result, fields)=> {
+        if (error == 1) {           
+            const selectQuery = "SELECT * FROM `mystudio`.`user` WHERE `userId` = '" + decoded.userId + "'";
+ 
+            database.connection.query(selectQuery, (error, result, fields)=> {
                 if(error){
                     res.status(500).json({ error: 'Internal server error' });
                 } else {
@@ -80,9 +82,9 @@ function resetpassword(req, res) {
                         res.status(200).json({ error: 'User not found' });
                         return;
                     }
-                    if (result[0].password == req.body.currentpassword) {  
-                        const query = 'UPDATE `mystudio`.`user` SET `password` = ? WHERE (`mobilenumber` = ?)';
-                        database.connection.query(query, [req.body.newpassword, decoded.mobilenumber], (error, results) => {
+                    if (result[0].password == decoded.password) {  
+                        const query = 'UPDATE `mystudio`.`user` SET `password` = ? WHERE (`userId` = ?)';
+                        database.connection.query(query, [req.body.newpassword, decoded.userId], (error, results) => {
                             if (error) {
                                 console.error('Error updating password: ' + error.stack);
                                 return;
@@ -105,8 +107,37 @@ function resetpassword(req, res) {
 */
 function updateprofile(req, res) {
     jwt.verifyToken(req.body.token, (error, decoded) => {
-        console.log(decoded.userId);
-        res.status(200).json({ message: 'Token Verified successfully -> update profile' });
+        if (error == 1) {     
+            const selectQuery = "SELECT * FROM `mystudio`.`user` WHERE `userId` = '" + decoded.userId + "'";
+            database.connection.query(selectQuery, (error, result, fields)=> {
+                if(error) {
+                    console.log(error);
+                    res.status(500).json({ error: 'Internal server error' });
+                } else {
+                    const count = result.length;
+                    if (count < 1) {
+                        res.status(200).json({ error: 'User not found' });
+                        return;
+                    }
+                    if (result[0].password == decoded.password) {  
+
+                        const u_query = 'UPDATE `mystudio`.`user` SET `firstname` = ?, `lastname` = ?, `gender` = ?, `city` = ? WHERE (`userId` = ?)';
+                        const values = [req.body.firstname, req.body.lastname, req.body.gender, req.body.city, decoded.userId];
+
+                        database.connection.query(u_query, values, (error, results) => {
+                            if (error) {
+                                console.error('Error updating Profile: ' + error.stack);
+                                return;
+                            }
+                            console.log('Profile updated successfully.');
+                            res.status(200).json({ message: 'Profile updated successfully.' });
+                        });
+                    }
+                }
+            });
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
+        }
     });
 };
 
