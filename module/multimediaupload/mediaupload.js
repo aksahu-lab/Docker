@@ -36,7 +36,7 @@ class FileUtility {
   }
 
   uploadMultipleFiles(fieldName, maxCount) {
-    console.log("\n\n Multiple Upload \n\n " + fieldName + " == Max Count : " + maxCount );
+    console.log("\n\n Multiple Upload : " + fieldName + "\nMax Count : " + maxCount );
     return this.upload.array(fieldName, maxCount);
   }
 

@@ -27,12 +27,9 @@ function registeruser(req, res, path) {
                 const userCount = results[0].total;
 
                 const { v4: uuidv4 } = require('uuid');
-                const userId = uuidv4().replace(/-/g, '').slice(0, 16);
-                console.log(userId);
-                
-                // const userId = 'USER_' + (userCount + 1).toString().padStart(7, '0');
+                const userId = uuidv4().replace(/-/g, '').slice(0, 16);                
                 const currentDate = new Date();
-                
+                console.log("************ = " + path);
 
                 if (path && path.path) {
                     // Access the path property

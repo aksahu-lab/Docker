@@ -97,9 +97,6 @@ usrdashboardroutes.post('/renameAlbum', multer.none(), (req, res) => {
                         userId: decoded.userId, 
                         albumName: req.body.newName, 
                         albumID: "Mystudio_" + decoded.userId, 
-                        generatedDate: generatedDate,
-                        eventDate: req.body.eventDate,
-                        eventType: req.body.eventType,
                         albumPath: newPath,
                         files: []
                     };                    
@@ -115,55 +112,58 @@ usrdashboardroutes.post('/renameAlbum', multer.none(), (req, res) => {
                     res.status(200).json({ error: 'Please choose a Album to Delete' });
                 }
             });
+        } else {
+            return res.status(400).json({ error: 'Session Expired' });
         }
     })
 });
 
-usrdashboardroutes.post('/savefilestoalbum',  fileUtility.uploadMultipleFiles(`files`, 5), function (req, res) {
+usrdashboardroutes.post('/savefilestoalbum', fileUtility.uploadMultipleFiles(`files`, 5), function (req, res) {
     // console.log("\n\n" + req.body.token);
-    jwt.verifyToken(req.body.token , (error, decoded) => {
-        if (error == 1) {                  
-            const query = { userId: decoded.userId, albumID: req.body.albumID, albumName: req.body.albumName };
-            mongodatabase.findDocuments("useralbum", query)
-            .then(documents => {
+    jwt.verifyToken(req.body.token, async (error, decoded) => {
+        if (error == 1) {
+            const query = { userId: decoded.userId, albumID: req.body.albumID };
+            try {
+                const documents = await mongodatabase.findDocuments("useralbum", query);
                 if (documents.length == 0) {
-                    res.status(400).json({ message: "Something Went Wrong!!.."});
-                } else {
-                    const albumPath = `Media/${decoded.userId}/${req.body.albumName}`;
-                    const FileHandler = require('../multimediaupload/FileHandler');
-                    const fileHandler = new FileHandler();
-                    var updateDoc = documents[0];
-                    // var fileInfo = documents[0].files;
-                    req.files.forEach((file) => {
-                        // Move a file
-                        fileHandler.moveFile(`${file.path}`, `${albumPath}/${file.filename}`);
-                        updateDoc.files.push({
-                            filename: file.originalname,
-                            filepath: "http://localhost:3000/api/" + `${albumPath}/${file.filename}`
-                        });
-                    });
-                    // const generatedDate = getCurrentDate();                                                                
-                    // updateDoc.files = fileInfo;  
-                    mongodatabase.updateDocument("useralbum", query, updateDoc)
-                    .then(documents => {
-                        // File upload completed successfully
-                        return res.status(200).json({ message: 'Files Stored Successfull...' });
-                    })
-                    .catch(error => {
-                        console.log(error);
-                        res.status(400).json({ error: 'Failed to Store The Album files...' });
+                    return res.status(400).json({ message: "Something Went Wrong!!.." });
+                }
+                const updateDoc = documents[0];
+                console.log("\n\n\nupdateDoc = " + JSON.stringify(updateDoc) + "\n\n***\n\n\n");
+                const userAlbumPath = `Media/${decoded.userId}/${updateDoc.albumName}`;
+                const FileHandler = require('../multimediaupload/FileHandler');
+                const fileHandler = new FileHandler();
+
+                console.log("\n\n\n******\n\n***\n\n\n AAA = " + req.files);
+
+                for (const file of req.files) {
+                    console.log("\n\nfile.path\n\n");
+                    console.log(file.path);
+                    // Move a file
+                    await fileHandler.moveFile(`${file.path}`, `${userAlbumPath}/${file.filename}`);
+                    updateDoc.files.push({
+                        filename: file.originalname,
+                        filepath: "http://localhost:3000/api/" + `${userAlbumPath}/${file.filename}`
                     });
                 }
-            })
-            .catch(error => {
+
+                console.log("\n\n\n******\n\n***\n\n\n");
+
+                console.log("File save to DB = " + JSON.stringify(updateDoc));
+
+                await mongodatabase.updateDocument("useralbum", query, updateDoc);
+
+                return res.status(200).json({ message: 'Files Stored Successfully...' });
+            } catch (error) {
                 console.log(error);
-                res.status(400).json({ error: 'Failed to Store The Album files...' });
-            });
+                return res.status(400).json({ error: 'Failed to Store The Album files...' });
+            }
         } else {
-            res.status(400).json({ error: 'Session Expired' });
+            return res.status(400).json({ error: 'Session Expired' });
         }
-    })
+    });
 });
+
 
 function deleteDirectory(directoryPath, callback) {
     if (fs.existsSync(directoryPath)) {

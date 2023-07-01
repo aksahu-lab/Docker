@@ -34,9 +34,11 @@ function redirecttoactualrouter(req, res) {
                             } else {
                                 // File uploaded successfully
                                 // Handle the success case
-                                console.log("\n\n--------------------------------------------------------\n\n");
+                                const filePath = req.file.path;
+
+                                console.log("\n\n--------------------------------------------------------\n\n"+ filePath + "\n********\n\n");
                                 const regroutes = require('./regristration/registeration');
-                                regroutes.registeruser(req, res, '../../Media');
+                                regroutes.registeruser(req, res, filePath);
                             }
                         });
                     }

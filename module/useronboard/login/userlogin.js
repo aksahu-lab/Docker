@@ -166,7 +166,6 @@ function getuserprofile(req, res) {
     });
 };
 
-
 module.exports = loginroutes;
 module.exports = {
                     userlogin,
