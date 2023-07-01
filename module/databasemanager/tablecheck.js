@@ -7,7 +7,7 @@
 const database = require('../databasemanager/databasemanager');
 
 function checkUserTablePresent(myCallback) {
-    let checkUserTblExist = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE  table_schema = 'mystudio' AND    table_name = 'user');";
+    let checkUserTblExist = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'mystudio' AND table_name = 'user');";
     database.connection.query(checkUserTblExist, (error, result, fields)=> {
         if(error) {
             creatUserTable(result => {
@@ -30,8 +30,12 @@ function checkUserTablePresent(myCallback) {
 }
 
 function creatUserTable(myCallback) {
-    let createTablesqlQ = "CREATE TABLE `mystudio`.`user` (`mobilenumber` VARCHAR(45) NOT NULL, `userId` VARCHAR(45) NOT NULL, `email` VARCHAR(45) NULL, `createdDate` VARCHAR(45) NULL, `usertype` VARCHAR(45) NULL, `password` VARCHAR(150) NULL, `state` VARCHAR(45) NULL, `distict` VARCHAR(45) NULL, `profileimage` VARCHAR(500) NULL, PRIMARY KEY (`mobilenumber`));";
+    console.log("Creat User Table");
+    let createTablesqlQ = "CREATE TABLE `mystudio`.`user` ( `username` VARCHAR(25) NOT NULL, `userId` VARCHAR(20) NOT NULL, `createdDate` VARCHAR(25) NULL, `usertype` VARCHAR(20) NULL, `password` VARCHAR(15) NULL, `profileimage` VARCHAR(150) NULL, `firstname` VARCHAR(20) NULL, `lastname` VARCHAR(20) NULL, `gender` VARCHAR(10) NULL, `city` VARCHAR(30) NULL, PRIMARY KEY (`username`));"
     database.connection.query(createTablesqlQ, (error, result, fields)=> {
+        console.log(error);
+        console.log(result);
+
         myCallback(0);
         return;
     });

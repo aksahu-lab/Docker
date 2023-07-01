@@ -20,23 +20,32 @@ function registeruser(req, res, path) {
             // Execute the query to get the user count
             database.connection.query(sql, (err, results) => {
                 if (err) {
+                    console.log(err);
                     res.status(500).send('Internal Server Error');
                     return;
                 }
                 const userCount = results[0].total;
-                const userId = 'USER_' + (userCount + 1).toString().padStart(7, '0');
-                var regSql = "INSERT INTO `mystudio`.`user` (`mobilenumber`, `userId`, `email`, `createdDate`, `usertype`, `password`, `state` , `distict`, `profileimage`) VALUES ?";
+
+                const { v4: uuidv4 } = require('uuid');
+                const userId = uuidv4().replace(/-/g, userCount + 1).substr(0, 16);
+                console.log(userId);
+                
+                // const userId = 'USER_' + (userCount + 1).toString().padStart(7, '0');
+                const currentDate = new Date();
+
+                var regSql = "INSERT INTO `mystudio`.`user` (`username`, `userId`, `createdDate`, `usertype`, `password`, `profileimage`, `firstname`, `lastname`, `gender`, `city`) VALUES ?";
                 var value = [
                     [
-                        req.body.mobilenumber,
+                        req.body.username,
                         userId,
-                        req.body.email,
-                        req.body.createdDate,
+                        currentDate,
                         "General",
                         req.body.password,
-                        req.body.state,
-                        req.body.distict,
-                        path
+                        path,
+                        req.body.firstname, 
+                        req.body.lastname,
+                        req.body.gender, 
+                        req.body.city
                     ]
                 ];
                 database.connection.query(regSql, [value], (error, result, fields)=> {

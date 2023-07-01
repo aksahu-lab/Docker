@@ -32,7 +32,6 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
                         const fileHandler = new FileHandler();
                         var updateDoc = [];
                         const generatedDate = getCurrentDate();  
-                        
                         updateDoc = { 
                             userId: decoded.userId, 
                             feedId: feedId, 
@@ -61,7 +60,6 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
                             console.log(error);
                             res.status(400).json({ error: 'Failed to Store The Album files...' });
                         });
-
                     }
                 });
             })

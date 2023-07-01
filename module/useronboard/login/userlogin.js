@@ -24,7 +24,7 @@ const tableCheck = require('../../databasemanager/tablecheck');
 function userlogin(req, res) {
     tableCheck.checkUserTablePresent(resp => {
         if (resp == 1) {
-            database.connection.query("select * from `mystudio`.`user` where mobilenumber = " + `${req.body.mobilenumber}`, (error, result, fields)=> {
+            database.connection.query("select * from `mystudio`.`user` where username = " + `${req.body.username}`, (error, result, fields)=> {
                 if(error){
                     res.status(500).json({ error: 'Internal server error' });
                 } else {
@@ -41,12 +41,13 @@ function userlogin(req, res) {
                        
                         var response = {
                             token : jwttoken,
-                            mobilenumber : result[0].mobilenumber,
+                            username : result[0].username,
                             userId : result[0].userId,
-                            email : result[0].email,
-                            state : result[0].state,
-                            distict : result[0].distict,
-                            profileimage: "http://localhost:3000/api/" + result[0].profileimage
+                            city : result[0].city,
+                            profileimage: "http://localhost:3000/api/" + result[0].profileimage,
+                            firstname: result[0].firstname,
+                            lastname: result[0].lastname,
+                            gender: result[0].gender
                         };
                         res.status(200).json(response);
                     } else {
@@ -104,6 +105,7 @@ function resetpassword(req, res) {
 */
 function updateprofile(req, res) {
     jwt.verifyToken(req.body.token, (error, decoded) => {
+        console.log(decoded.userId);
         res.status(200).json({ message: 'Token Verified successfully -> update profile' });
     });
 };
