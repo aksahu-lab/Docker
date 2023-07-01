@@ -1,9 +1,9 @@
 // const MongoClient = require('mongodb').MongoClient;
 const { MongoClient } = require('mongodb');
+const database = require('../databasemanager/databasemanager');
 
 const url = 'mongodb://127.0.0.1:27017'; // Replace with your MongoDB URL
 const dbName = 'mystudio'; // Replace with your database name
-
 
 // Function to connect to MongoDB
 const connectToMongoDB = async () => {
@@ -159,6 +159,59 @@ const commentOnFeed = async (feedId, userId, commentText) => {
   }
 };
 
+// Function to comment pic from album
+const commentOnAlbumPic = async (albumID, fileId, userId, commentText) => {
+  try {
+      const db = await connectToMongoDB();
+      const collection = db.collection('useralbum');
+      // Retrieve the feed
+      const feed = await collection.findOne({ albumID: albumID });
+      if (!feed) {
+        console.log('Photo/Video not found.');
+        return 'Photo/Video not found.';
+      }
+      const selectQuery = "SELECT * FROM `mystudio`.`user` WHERE `userId` = '" + userId + "'";
+      await database.connection.query(selectQuery, (error, result, fields)=> {
+          if(error){
+              // res.status(500).json({ error: 'Internal server error' });
+              return 'Internal server error';
+          } else {
+              const count = result.length;
+              if (count < 1) {
+                  return 'User not found';
+              }
+              // Create a new comment object
+              const newComment = {
+                userId: userId,
+                firstname: result[0].firstname,
+                lastname: result[0].lastname,
+                profilepic: "http://localhost:3000/api/" + result[0].profileimage,
+                commentText: commentText
+              };
+
+              // Update the album with the new comment
+              const updateResult = collection.updateOne(
+                { 'files.fileId': fileId },
+                { $push: { 'files.$.comments': newComment } }
+              );
+
+              if (updateResult.modifiedCount > 0) {
+                console.log('Comment inserted successfully');
+                return;// 'Comment added successfully.';
+              } else {
+                console.log('Failed to add comment');
+                return;// 'Failed to add comment.';
+              }
+
+          }
+      });
+
+  } catch (error) {
+    console.error('Failed to comment on feed:', error);
+    throw error;
+  }
+};
+
 
 module.exports = {
   connectToMongoDB,
@@ -168,5 +221,6 @@ module.exports = {
   deleteDocument,
   collectionDataCount,
   likeUnlikeComment,
-  commentOnFeed
+  commentOnFeed,
+  commentOnAlbumPic
 };

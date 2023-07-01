@@ -24,23 +24,9 @@ function registeruser(req, res, path) {
                     res.status(500).send('Internal Server Error');
                     return;
                 }
-                const userCount = results[0].total;
-
                 const { v4: uuidv4 } = require('uuid');
                 const userId = uuidv4().replace(/-/g, '').slice(0, 16);                
                 const currentDate = new Date();
-                console.log("************ = " + path);
-
-                if (path && path.path) {
-                    // Access the path property
-                    console.log(path);
-                    profileImagePath = path;
-                } else {
-                    // Handle the case where the object or path property is undefined
-                    console.log("Object or path property is undefined");
-                    profileImagePath = `./Media/DefaultProfile/profile_placeholder.png`;
-                }
-
                 var regSql = "INSERT INTO `mystudio`.`user` (`username`, `userId`, `createdDate`, `usertype`, `password`, `profileimage`, `firstname`, `lastname`, `gender`, `city`) VALUES ?";
                 var value = [
                     [
@@ -49,7 +35,7 @@ function registeruser(req, res, path) {
                         currentDate,
                         "General",
                         req.body.password,
-                        profileImagePath,
+                        path,
                         req.body.firstname, 
                         req.body.lastname,
                         req.body.gender, 
@@ -58,7 +44,7 @@ function registeruser(req, res, path) {
                 ];
                 database.connection.query(regSql, [value], (error, result, fields)=> {
                     if(error) {
-                        deleteFile(req.file.path, response => {
+                        deleteFile(path, response => {
                             console.log("File Deleted Sucessfully " + response);
                         });
                         console.log(error);

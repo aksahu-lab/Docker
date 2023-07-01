@@ -32,8 +32,18 @@ app.use('/api/Media', (req, res) => {
   // const filename = req.params.filename;
   const path = require('path');
   const filePath = path.join("./Media", req.url); // Adjust the folder path as per your image location
-  console.log("+++++++++++++++++   " + filePath);
+  res.download(filePath, (err) => {
+    if (err) {
+      console.error('Error downloading file:', err);
+      res.status(404).send('File not found');
+    }
+  });
+});
 
+app.use('/api/Assets', (req, res) => {
+  // const filename = req.params.filename;
+  const path = require('path');
+  const filePath = path.join("./Assets", req.url); // Adjust the folder path as per your image location
   res.download(filePath, (err) => {
     if (err) {
       console.error('Error downloading file:', err);

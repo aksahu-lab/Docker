@@ -34,11 +34,12 @@ function redirecttoactualrouter(req, res) {
                             } else {
                                 // File uploaded successfully
                                 // Handle the success case
-                                const filePath = req.file.path;
-
-                                console.log("\n\n--------------------------------------------------------\n\n"+ filePath + "\n********\n\n");
                                 const regroutes = require('./regristration/registeration');
-                                regroutes.registeruser(req, res, filePath);
+                                if (!req.file) {
+                                    regroutes.registeruser(req, res, `./Assets/profile_placeholder.png`);
+                                } else {
+                                    regroutes.registeruser(req, res, req.file.path);
+                                }
                             }
                         });
                     }

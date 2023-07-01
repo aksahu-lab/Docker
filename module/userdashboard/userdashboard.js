@@ -118,7 +118,7 @@ usrdashboardroutes.post('/renameAlbum', multer.none(), (req, res) => {
     })
 });
 
-usrdashboardroutes.post('/savefilestoalbum', fileUtility.uploadMultipleFiles(`files`, 5), function (req, res) {
+usrdashboardroutes.post('/savealbum', fileUtility.uploadMultipleFiles(`files`, 5), function (req, res) {
     // console.log("\n\n" + req.body.token);
     jwt.verifyToken(req.body.token, async (error, decoded) => {
         if (error == 1) {
@@ -129,33 +129,24 @@ usrdashboardroutes.post('/savefilestoalbum', fileUtility.uploadMultipleFiles(`fi
                     return res.status(400).json({ message: "Something Went Wrong!!.." });
                 }
                 const updateDoc = documents[0];
-                console.log("\n\n\nupdateDoc = " + JSON.stringify(updateDoc) + "\n\n***\n\n\n");
                 const userAlbumPath = `Media/${decoded.userId}/${updateDoc.albumName}`;
                 const FileHandler = require('../multimediaupload/FileHandler');
                 const fileHandler = new FileHandler();
-
-                console.log("\n\n\n******\n\n***\n\n\n AAA = " + req.files);
-
                 for (const file of req.files) {
-                    console.log("\n\nfile.path\n\n");
-                    console.log(file.path);
                     // Move a file
                     await fileHandler.moveFile(`${file.path}`, `${userAlbumPath}/${file.filename}`);
+                    const { v4: uuidv4 } = require('uuid');
+                    const userId = uuidv4().replace(/-/g, '').slice(0, 16);                
                     updateDoc.files.push({
                         filename: file.originalname,
-                        filepath: "http://localhost:3000/api/" + `${userAlbumPath}/${file.filename}`
+                        fileId: "Album_" + userId,
+                        filepath: "http://localhost:3000/api/" + `${userAlbumPath}/${file.filename}`,
+                        comments: []
                     });
                 }
-
-                console.log("\n\n\n******\n\n***\n\n\n");
-
-                console.log("File save to DB = " + JSON.stringify(updateDoc));
-
                 await mongodatabase.updateDocument("useralbum", query, updateDoc);
-
                 return res.status(200).json({ message: 'Files Stored Successfully...' });
             } catch (error) {
-                console.log(error);
                 return res.status(400).json({ error: 'Failed to Store The Album files...' });
             }
         } else {
@@ -164,6 +155,22 @@ usrdashboardroutes.post('/savefilestoalbum', fileUtility.uploadMultipleFiles(`fi
     });
 });
 
+usrdashboardroutes.post('/commentalbum', fileUtility.uploadMultipleFiles(`files`, 5), function (req, res) {
+    jwt.verifyToken(req.body.token , (error, decoded) => {
+        if (error == 1) {
+            mongodatabase.commentOnAlbumPic(req.body.albumID, req.body.fileId, decoded.userId, req.body.comment)
+            .then(response => {
+                // File upload completed successfully
+                return res.status(200).json({ message: response});
+            })
+            .catch(error => {
+                res.status(400).json({ error: 'Failed to Store The Album files...' });
+            });
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
+        }
+    })
+});
 
 function deleteDirectory(directoryPath, callback) {
     if (fs.existsSync(directoryPath)) {
@@ -197,7 +204,7 @@ function renameDirectory(oldPath, newPath, callback) {
     } else {
       callback(false);
     }
-  }
+}
 
 function getCurrentDate() {
     const currentDate = new Date();
