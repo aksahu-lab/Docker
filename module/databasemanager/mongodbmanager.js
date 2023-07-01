@@ -190,19 +190,12 @@ const commentOnAlbumPic = async (albumID, fileId, userId, commentText) => {
               };
 
               // Update the album with the new comment
-              const updateResult = collection.updateOne(
+              collection.updateOne(
                 { 'files.fileId': fileId },
                 { $push: { 'files.$.comments': newComment } }
               );
-
-              if (updateResult.modifiedCount > 0) {
-                console.log('Comment inserted successfully');
-                return;// 'Comment added successfully.';
-              } else {
-                console.log('Failed to add comment');
-                return;// 'Failed to add comment.';
-              }
-
+              // console.log('Comment added successfully.');
+              return 'Comment added successfully.'; 
           }
       });
 

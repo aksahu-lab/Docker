@@ -141,7 +141,6 @@ publicfeedrote.post('/deletefeed', fileUtility.uploadMultipleFiles(`files`, 5), 
 publicfeedrote.post('/likefeed', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
-            
             mongodatabase.likeUnlikeComment(req.body.feedId, decoded.userId, req.body.like)
             .then(response => {
                 // File upload completed successfully
@@ -151,7 +150,6 @@ publicfeedrote.post('/likefeed', multer.none(), (req, res) => {
                 console.log(error);
                 res.status(400).json({ error: 'Failed to Store The Album files...' });
             });
-            
         } else {
             res.status(200).json({ message: 'Token Expired'});
         }
