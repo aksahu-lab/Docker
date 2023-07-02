@@ -6,6 +6,7 @@
 
 const publicfeedrote = require('express').Router();
 const multer = require('multer')();
+const database = require('../databasemanager/databasemanager');
 
 const fs = require('fs');
 
@@ -39,6 +40,8 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
                             albumPath: albumPath,
                             description: req.body.description,
                             posttype: req.body.posttype,
+                            feeling: req.body.feeling,
+                            tagedpeople: req.body.tagedpeople,
                             files: [],
                             likes: [],
                             comments: []
@@ -176,6 +179,42 @@ publicfeedrote.post('/commentfeed', multer.none(), (req, res) => {
     })
 });
 
+
+publicfeedrote.post('/searchuser', multer.none(), (req, res) => {
+    jwt.verifyToken(req.body.token , (error, decoded) => {
+        if (error == 1) {
+            // Example usage
+            searchByNameCharacters(req.body.user, (error, results) => {
+                if (error) {
+                    console.error('Error:', error);
+                    res.status(200).json({ message: "No User found"});
+                }
+                console.log('Search results:', results);
+                res.status(200).json(results);
+            });
+        } else {
+            res.status(200).json({ message: 'Token Expired'});
+        }
+    })
+});
+
+// Function to search for characters in first name or last name
+function searchByNameCharacters(searchTerm, callback) {
+    const query = "SELECT * FROM `mystudio`.`user` WHERE `firstname` LIKE '" + searchTerm + "%' OR `lastname` LIKE '" + searchTerm + "%'";
+  
+    database.connection.query(query, (error, results) => {
+        console.log( "\n\n===> " + results);
+        console.log( "\n\n===> " + error);
+
+      if (error) {
+        callback(error, null);
+        return;
+      }
+      callback(null, results);
+    });
+}
+
+  
 function getCurrentDate() {
     const currentDate = new Date();
     const day = String(currentDate.getDate()).padStart(2, '0');
