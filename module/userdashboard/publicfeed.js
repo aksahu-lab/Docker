@@ -186,10 +186,8 @@ publicfeedrote.post('/searchuser', multer.none(), (req, res) => {
             // Example usage
             searchByNameCharacters(req.body.user, (error, results) => {
                 if (error) {
-                    console.error('Error:', error);
                     res.status(200).json({ message: "No User found"});
                 }
-                console.log('Search results:', results);
                 res.status(200).json(results);
             });
         } else {
@@ -201,16 +199,25 @@ publicfeedrote.post('/searchuser', multer.none(), (req, res) => {
 // Function to search for characters in first name or last name
 function searchByNameCharacters(searchTerm, callback) {
     const query = "SELECT * FROM `mystudio`.`user` WHERE `firstname` LIKE '" + searchTerm + "%' OR `lastname` LIKE '" + searchTerm + "%'";
-  
     database.connection.query(query, (error, results) => {
-        console.log( "\n\n===> " + results);
-        console.log( "\n\n===> " + error);
-
-      if (error) {
-        callback(error, null);
-        return;
-      }
-      callback(null, results);
+        var userList = [];
+        if (error) {
+            callback(error, null);
+            return;
+        }
+        results.forEach((file) => {
+            userList.push({
+                username : file.username,
+                userId : file.userId,
+                city : file.city,
+                profileimage: "http://localhost:3000/api/" + file.profileimage,
+                firstname: file.firstname,
+                lastname: file.lastname,
+                gender: file.gender
+            });
+        });
+        
+        callback(null, userList);
     });
 }
 
