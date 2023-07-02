@@ -49,8 +49,11 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
                         req.files.forEach((file) => {
                             // Move a file
                             fileHandler.moveFile(`${file.path}`, `${albumPath}${file.filename}`);
+                            const { v4: uuidv4 } = require('uuid');
+                            const userId = uuidv4().replace(/-/g, '').slice(0, 16);   
                             updateDoc.files.push({
                                 filename: file.originalname,
+                                fileId: "PF_" + userId,
                                 filepath: "http://localhost:3000/api/" + `${albumPath}${file.filename}`
                             });
                         });
