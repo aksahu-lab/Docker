@@ -160,7 +160,6 @@ usrdashboardroutes.post('/commentalbum', fileUtility.uploadMultipleFiles(`files`
         if (error == 1) {
             mongodatabase.commentOnAlbumPic(req.body.albumID, req.body.fileId, decoded.userId, req.body.comment)
             .then(response => {
-                console.log("#log 1 = " + response);
                 // File upload completed successfully
                 if (!response) {
                     return res.status(200).json({ message: "Comment added successfully."});
@@ -169,11 +168,9 @@ usrdashboardroutes.post('/commentalbum', fileUtility.uploadMultipleFiles(`files`
                 }
             })
             .catch(error => {
-                console.log("#log 2");
                 res.status(400).json({ error: 'Failed to Store The Album files...' });
             });
         } else {
-            console.log("#log 3");
             res.status(200).json({ message: 'Token Expired'});
         }
     })
