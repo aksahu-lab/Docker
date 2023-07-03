@@ -6,32 +6,36 @@
 
 const express = require('express');
 const app = express();
-
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const YAML = require('yamljs');
 
-const usrdashboardroutes = require('./module/userdashboard/userdashboard');
-const publicfeedsroute = require('./module/userdashboard/publicfeed');
-
+const userDashboardRoutes = require('./module/userdashboard/userdashboard');
+const publicFeedsRoute = require('./module/userdashboard/publicfeed');
+const onboardRoutes = require('./module/useronboard/onboard');
 
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
 
-// Serve the Swagger UI at /api-docs endpoint
+// Serve the Swagger UI at the /api-docs endpoint
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+/**
+ * Redirects the request to the appropriate router for user-related actions.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+app.use('/api/user', onboardRoutes.redirectToActualRouter);
 
-// Continue defining your routes and handlers...
-app.use('/api/user', (req, res) => {
-  const onboard = require('./module/useronboard/onboard');
-  onboard.redirecttoactualrouter(req, res);
-});
 
+/**
+ * Downloads a file from the Media folder.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 app.use('/api/Media', (req, res) => {
-  // const filename = req.params.filename;
   const path = require('path');
-  const filePath = path.join("./Media", req.url); // Adjust the folder path as per your image location
+  const filePath = path.join('./Media', req.url);
   res.download(filePath, (err) => {
     if (err) {
       console.error('Error downloading file:', err);
@@ -40,10 +44,14 @@ app.use('/api/Media', (req, res) => {
   });
 });
 
+/**
+ * Downloads a file from the Assets folder.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
 app.use('/api/Assets', (req, res) => {
-  // const filename = req.params.filename;
   const path = require('path');
-  const filePath = path.join("./Assets", req.url); // Adjust the folder path as per your image location
+  const filePath = path.join('./Assets', req.url);
   res.download(filePath, (err) => {
     if (err) {
       console.error('Error downloading file:', err);
@@ -52,15 +60,20 @@ app.use('/api/Assets', (req, res) => {
   });
 });
 
-app.use('/api/dashboard', usrdashboardroutes, (req, res) => {
+app.use('/api/dashboard', userDashboardRoutes, (req, res) => {
   console.log('*** Dashboard');
 });
 
-app.use('/api/userfeeds', publicfeedsroute, (req, res) => {
-  console.log('*** public feeds route *****');
+app.use('/api/userfeeds', publicFeedsRoute, (req, res) => {
+  console.log('*** Public Feeds Route');
 });
 
-app.get('/', (req, res) => { });
+/**
+ * Default route handler.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+app.get('/', (req, res) => {});
 
 const port = 3000;
 app.listen(port, () => {

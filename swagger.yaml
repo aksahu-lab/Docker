@@ -1,81 +1,175 @@
-openapi: 3.0.0
+swagger: "2.0"
 info:
-  title: My Studio
-  version: 1.0.0
-  description: A Unique Way to create Album
-
+  version: "1.0.0"
+  title: "User Management API"
 paths:
-  /api/user/regristration:
+  /api/user/register:
     post:
-      summary: User Regristration
-      description: User can Register Using this.
-      tags:
-        - User
+      summary: Register a new user
+      consumes:
+        - multipart/form-data
       parameters:
-        - mobilenumber: limit
-          in: query
-          description: Enter mobile number.
-          schema:
-            type: integer
-            default: 8895666168
-        - email : limit
-          in: query
-          description: Enter email
-          schema:
-            type: string
-            default: 123@gmail.com
-        - createdDate : limit
-          in: query
-          description: Enter current date
-          schema:
-            type: string
-            default: 10/06/2023
-        - password : limit
-          in: query
-          description: Enter password
-          schema:
-            type: string
-            default: 123
-        - state : limit
-          in: query
-          description: Enter state
-          schema:
-            type: string
-            default: Odisha
-        - distict : limit
-          in: query
-          description: Enter state
-          schema:
-            type: string
-            default: Ganjam
+        - name: username
+          in: formData
+          description: User's username
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: User's password
+          required: true
+          type: string
+        - name: file
+          in: formData
+          description: Profile image file
+          required: true
+          type: file
+        - name: firstname
+          in: formData
+          description: User's first name
+          required: true
+          type: string
+        - name: lastname
+          in: formData
+          description: User's last name
+          required: true
+          type: string
+        - name: gender
+          in: formData
+          description: User's gender
+          required: true
+          type: string
+        - name: city
+          in: formData
+          description: User's city
+          required: false
+          type: string
+        - name: usertype
+          in: formData
+          description: User's type
+          required: true
+          type: string
       responses:
-        '200':
-          description: You have registered successfully.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-
-
-paths:
+        200:
+          description: User registration successful
+        409:
+          description: Duplicate entry (username already exists)
+        500:
+          description: Internal server error
   /api/user/login:
     post:
-      summary: User Login
-      description: User can Login
-      tags:
-        - Users
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
+      summary: User login
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: Login request body
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              password:
+                type: string
       responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
+        200:
+          description: Successful login
+        500:
+          description: Internal server error
+
+  /api/user/resetPassword:
+    post:
+      summary: Reset user password
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: Reset password request body
+          required: true
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+              newpassword:
+                type: string
+      responses:
+        200:
+          description: Password reset successful
+        500:
+          description: Internal server error
+
+  /api/user/updateProfile:
+    post:
+      summary: Update user profile
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: Update profile request body
+          required: true
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+              firstname:
+                type: string
+              lastname:
+                type: string
+              gender:
+                type: string
+              city:
+                type: string
+      responses:
+        200:
+          description: Profile update successful
+        500:
+          description: Internal server error
+
+  /api/user/getUserProfile:
+    post:
+      summary: Get user profile
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: Get user profile request body
+          required: true
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+      responses:
+        200:
+          description: Successful profile retrieval
+        500:
+          description: Internal server error
+
+  /api/user/forgotPassword:
+    post:
+      summary: Forgot password
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: Forgot password request body
+          required: true
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+      responses:
+        200:
+          description: Password reset instructions sent
+        500:
+          description: Internal server error
+  
