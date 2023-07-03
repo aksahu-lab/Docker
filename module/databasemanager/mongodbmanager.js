@@ -76,6 +76,26 @@ const deleteDocument = async (collectionName, query) => {
   }
 };
 
+// Function to delete a document
+const deletePicFromAlbum = async (collectionName, albumID, fileId) => {
+  try {
+    const db = await connectToMongoDB();
+    const collection = db.collection(collectionName);
+
+    console.log('albumID = ' + albumID + " & fileId = " + fileId);
+
+    const result = await collection.updateOne(
+      { "albumID": albumID },
+      { $pull: { "files": { "fileId": fileId } } }
+    );
+    console.log('Document deleted successfully = ' + JSON.stringify(result));
+    return result;
+  } catch (error) {
+    console.error('Failed to delete document:', error);
+    throw error;
+  }
+};
+
 // Function to GET COllection document count
 const collectionDataCount = async (collectionName) => {
   try {
@@ -171,7 +191,7 @@ const commentOnAlbumPic = async (albumID, fileId, userId, commentText) => {
         return 'Photo/Video not found.';
       }
       const selectQuery = "SELECT * FROM `mystudio`.`user` WHERE `userId` = '" + userId + "'";
-      await database.connection.query(selectQuery, (error, result, fields)=> {
+      database.connection.query(selectQuery, (error, result, fields)=> {
           if(error){
               // res.status(500).json({ error: 'Internal server error' });
               return 'Internal server error';
@@ -215,5 +235,6 @@ module.exports = {
   collectionDataCount,
   likeUnlikeComment,
   commentOnFeed,
-  commentOnAlbumPic
+  commentOnAlbumPic,
+  deletePicFromAlbum
 };

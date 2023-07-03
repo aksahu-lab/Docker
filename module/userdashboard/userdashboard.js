@@ -176,6 +176,22 @@ usrdashboardroutes.post('/commentalbum', fileUtility.uploadMultipleFiles(`files`
     })
 });
 
+usrdashboardroutes.post('/deleteFromAlbum', multer.none(), function (req, res) {
+    jwt.verifyToken(req.body.token, async (error, decoded) => {
+        if (error == 1) {            
+            mongodatabase.deletePicFromAlbum("useralbum",req.body.albumID, req.body.fileId)
+            .then((result) => {
+                res.status(200).json({ message: 'File Delete Successfully...' });
+            })
+            .catch((error) => {
+                res.status(400).json({ message: 'Failed to Delete File.'});
+            });
+        } else {
+            return res.status(400).json({ error: 'Session Expired' });
+        }
+    });
+});
+
 function deleteDirectory(directoryPath, callback) {
     if (fs.existsSync(directoryPath)) {
       fs.readdirSync(directoryPath).forEach(file => {
