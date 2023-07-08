@@ -18,7 +18,7 @@ const albumPath = `./Media/`;
 const FileUtility = require('../multimediaupload/mediaupload');
 const fileUtility = new FileUtility(albumPath);
 
-publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (req, res) => {
+publicfeedrote.post('/postFeed', fileUtility.uploadMultipleFiles(`files`, 5), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
             mongodatabase.collectionDataCount("publicfeeds")
@@ -79,7 +79,7 @@ publicfeedrote.post('/postfeed', fileUtility.uploadMultipleFiles(`files`, 5), (r
     })
 });
 
-publicfeedrote.post('/updatefeed', fileUtility.uploadMultipleFiles(`files`, 5), (req, res) => {
+publicfeedrote.post('/updateFeed', fileUtility.uploadMultipleFiles(`files`, 5), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
             console.log("\n\nUpdate Post : " + JSON.stringify(req.body) + "\n\n");

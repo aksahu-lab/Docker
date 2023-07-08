@@ -4,6 +4,7 @@ const database = require('../databasemanager/databasemanager');
 const jwt = require('../security/jwt/jwtmanager');
 const mongodatabase = require('../databasemanager/mongodbmanager');
 const multer = require('multer')();
+const tableCheck = require('../databasemanager/tablecheck');
 
 // Create the router
 const socialBuilderRoute = Router();
@@ -26,6 +27,7 @@ socialBuilderRoute.post('/searchFriend', multer.none(), verifyToken, (req, res) 
 // Route: /sendRequest
 // Description: Sends a friend request
 socialBuilderRoute.post('/sendRequest', multer.none(), verifyToken, (req, res) => {
+    console.log("Send Request To User ID : " + req.body.userId);
     // Access the user information from the decoded token
     const user = req.user;
 
@@ -37,26 +39,86 @@ socialBuilderRoute.post('/sendRequest', multer.none(), verifyToken, (req, res) =
 // Route: /addFriend
 // Description: Adds a friend
 socialBuilderRoute.post('/addFriend', multer.none(), verifyToken, (req, res) => {
+    console.log("Add Friend User ID : " + req.body.friendId);
     // Access the user information from the decoded token
     const user = req.user;
-
-    // TODO: Implement adding a friend functionality
-    res.status(200).json({ message: 'Search successful', user });
+    tableCheck.checkUserFriendListTablePresent((result) => {
+        console.log(result);
+        if (result === 1) {
+            // TODO: Implement adding a friend functionality
+            const currentDate = new Date();
+            const regSql =
+              'INSERT INTO `mystudio`.`friendlist` (`userId`, `currentDate`, `friendId`, `firstName`, `lastName`, `profileImage`) VALUES ?';
+            const values = [
+                [
+                    user.userId,
+                    currentDate,
+                    req.body.friendId,
+                    req.body.firstName,
+                    req.body.lastName,
+                    req.body.profileImage
+                ]
+            ];
+    
+            database.connection.query(regSql, [values], (error, result, fields) => {
+              if (error) {  
+                console.log(error);              
+                if (error.code === 'ER_DUP_ENTRY') {
+                  res.status(409).json({ error: 'Duplicate entry' });
+                } else {
+                  res.status(500).json({ error: 'Internal server error' });
+                }
+              } else {
+                console.log('\n\n' + JSON.stringify(result) + '\n\n');
+                res.status(200).json({ message: 'Friend added successfully.' });
+              }
+            });
+        } else {
+            // TODO: Implement adding a friend functionality
+            res.status(400).json({ message: 'Something Went Wrong.', user });
+        }
+    });
 });
 
 // Route: /unFriend
 // Description: Removes a friend
 socialBuilderRoute.post('/unFriend', multer.none(), verifyToken, (req, res) => {
+    console.log("Un Friend User ID : " + req.body.friendId);
     // Access the user information from the decoded token
     const user = req.user;
-
     // TODO: Implement removing a friend functionality
-    res.status(200).json({ message: 'Search successful', user });
+    tableCheck.checkUserFriendListTablePresent((result) => {
+        if (result === 1) {
+            // TODO: Implement adding a friend functionality
+            const friendId = req.body.friendId; // Assuming `friendId` is provided in the request body
+            const deleteSql = 'DELETE FROM `friendlist` WHERE `friendId` = ?';
+            database.connection.query(deleteSql, [friendId], (error, results) => {
+                if (error) {
+                    // Handle the error
+                    console.error('Error deleting friend:', error);
+                    res.status(500).json({ error: 'Failed to delete friend' });
+                } else {
+                    // Friend deleted successfully
+                    if (results.affectedRows === 1) {
+                        console.log(results.affectedRows);
+                        res.status(200).json({ message: 'Friend deleted' });
+                    } else {
+                        res.status(200).json({ message: 'Friend Not found' });
+                    }
+                }
+            });
+        } else {
+            // TODO: Implement adding a friend functionality
+            res.status(400).json({ message: 'Something Went Wrong.', user });
+        }
+    });
 });
 
 // Route: /block
 // Description: Blocks a user
-socialBuilderRoute.post('/block', multer.none(), verifyToken, (req, res) => {
+socialBuilderRoute.post('/blockUser', multer.none(), verifyToken, (req, res) => {
+    console.log("Block Friend User ID : " + req.body.userId);
+
     // Access the user information from the decoded token
     const user = req.user;
 
@@ -67,6 +129,8 @@ socialBuilderRoute.post('/block', multer.none(), verifyToken, (req, res) => {
 // Route: /reportFakeUser
 // Description: Reports a fake user
 socialBuilderRoute.post('/reportFakeUser', multer.none(), verifyToken, (req, res) => {
+    console.log("Report Fake User ID : " + req.body.userId);
+
     // Access the user information from the decoded token
     const user = req.user;
     
