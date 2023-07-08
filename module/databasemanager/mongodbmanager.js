@@ -1,4 +1,3 @@
-// const MongoClient = require('mongodb').MongoClient;
 const { MongoClient } = require('mongodb');
 const database = require('../databasemanager/databasemanager');
 

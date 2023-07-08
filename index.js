@@ -13,6 +13,7 @@ const YAML = require('yamljs');
 const userDashboardRoutes = require('./module/userdashboard/userdashboard');
 const publicFeedsRoute = require('./module/userdashboard/publicfeed');
 const onboardRoutes = require('./module/useronboard/onboard');
+const socialBuilderRoute = require('./module/SocialBuilder/socialBuilder');
 
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
@@ -67,6 +68,12 @@ app.use('/api/dashboard', userDashboardRoutes, (req, res) => {
 app.use('/api/userfeeds', publicFeedsRoute, (req, res) => {
   console.log('*** Public Feeds Route');
 });
+
+
+app.use('/api/social', socialBuilderRoute, (req, res) => {
+  console.log('*** social network Activity');
+});
+
 
 /**
  * Default route handler.

@@ -119,7 +119,7 @@ publicfeedrote.post('/updatefeed', fileUtility.uploadMultipleFiles(`files`, 5), 
     })
 });
 
-publicfeedrote.post('/deletefeed', fileUtility.uploadMultipleFiles(`files`, 5), (req, res) => {
+publicfeedrote.post('/deleteFeed', fileUtility.uploadMultipleFiles(`files`, 5), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
             const FileHandler = require('../multimediaupload/FileHandler');
@@ -144,7 +144,7 @@ publicfeedrote.post('/deletefeed', fileUtility.uploadMultipleFiles(`files`, 5), 
 });
 
 
-publicfeedrote.post('/likefeed', multer.none(), (req, res) => {
+publicfeedrote.post('/likeFeed', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
             mongodatabase.likeUnlikeComment(req.body.feedId, decoded.userId, req.body.like)
@@ -162,7 +162,7 @@ publicfeedrote.post('/likefeed', multer.none(), (req, res) => {
     })
 });
 
-publicfeedrote.post('/commentfeed', multer.none(), (req, res) => {
+publicfeedrote.post('/commentFeed', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
             
@@ -183,7 +183,7 @@ publicfeedrote.post('/commentfeed', multer.none(), (req, res) => {
 });
 
 
-publicfeedrote.post('/searchuser', multer.none(), (req, res) => {
+publicfeedrote.post('/searchUser', multer.none(), (req, res) => {
     jwt.verifyToken(req.body.token , (error, decoded) => {
         if (error == 1) {
             // Example usage
