@@ -69,7 +69,7 @@ function registerUser(req, res, path) {
         });
       });
     } else {
-      res.status(200).json({ error: 'You have not registered, please register first.' });
+      res.status(404).json({ error: 'Internal Server Error.' });
     }
   });
 }
