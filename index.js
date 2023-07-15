@@ -16,6 +16,7 @@ const onboardRoutes = require('./module/useronboard/clientOnBoard');
 const socialBuilderRoute = require('./module/SocialBuilder/socialBuilder');
 
 const studioOnboardRoutes = require('./module/StudioOnBoard/StudioOnboard');
+const studioInfoRoutes = require('./module/Vendor/Studio/studioinfo');
 
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
@@ -37,6 +38,14 @@ app.use('/api/user', onboardRoutes.redirectToActualRouter);
  */
 app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter);
 
+/**
+ * Redirects the request to the appropriate router for user-related actions.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+app.use('/api/vendor', studioInfoRoutes, (req, res) => {
+  console.log('*** social network Activity');
+});
 
 /**
  * Downloads a file from the Media folder.
