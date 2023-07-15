@@ -9,6 +9,10 @@ const tableCheck = require('../databasemanager/tablecheck');
 // Create the router
 const socialBuilderRoute = Router();
 
+// Value to identify friendship status
+// 0 - not yet friend
+// 1 - friend
+
 // Route: /searchFriend
 // Description: Searches for a friend
 socialBuilderRoute.post('/searchFriend', multer.none(), verifyToken, (req, res) => {
@@ -32,8 +36,43 @@ socialBuilderRoute.post('/sendRequest', multer.none(), verifyToken, (req, res) =
     const user = req.user;
 
     // TODO: Implement friend request sending functionality
-
-    res.status(200).json({ message: 'Search successful', user });
+    tableCheck.checkUserFriendListTablePresent((result) => {
+        console.log(result);
+        if (result === 1) {
+            // TODO: Implement adding a friend functionality
+            const currentDate = new Date();
+            const regSql =
+              'INSERT INTO `mystudio`.`friendlist` (`userId`, `currentDate`, `friendId`, `firstName`, `lastName`, `profileImage`, `status`) VALUES ?';
+            const values = [
+                [
+                    req.body.userId,
+                    currentDate,
+                    user.userId,
+                    req.body.firstName,
+                    req.body.lastName,
+                    req.body.profileImage,
+                    0
+                ]
+            ];
+    
+            database.connection.query(regSql, [values], (error, result, fields) => {
+              if (error) {  
+                console.log(error);              
+                if (error.code === 'ER_DUP_ENTRY') {
+                  res.status(409).json({ error: 'Duplicate entry' });
+                } else {
+                  res.status(500).json({ error: 'Internal server error' });
+                }
+              } else {
+                console.log('\n\n' + JSON.stringify(result) + '\n\n');
+                res.status(200).json({ message: 'Friend added successfully.' });
+              }
+            });
+        } else {
+            // TODO: Implement adding a friend functionality
+            res.status(400).json({ message: 'Something Went Wrong.', user });
+        }
+    });
 });
 
 // Route: /addFriend
@@ -48,7 +87,7 @@ socialBuilderRoute.post('/addFriend', multer.none(), verifyToken, (req, res) => 
             // TODO: Implement adding a friend functionality
             const currentDate = new Date();
             const regSql =
-              'INSERT INTO `mystudio`.`friendlist` (`userId`, `currentDate`, `friendId`, `firstName`, `lastName`, `profileImage`) VALUES ?';
+              'INSERT INTO `mystudio`.`friendlist` (`userId`, `currentDate`, `friendId`, `firstName`, `lastName`, `profileImage`, `status`) VALUES ?';
             const values = [
                 [
                     user.userId,
@@ -56,7 +95,8 @@ socialBuilderRoute.post('/addFriend', multer.none(), verifyToken, (req, res) => 
                     req.body.friendId,
                     req.body.firstName,
                     req.body.lastName,
-                    req.body.profileImage
+                    req.body.profileImage,
+                    1
                 ]
             ];
     

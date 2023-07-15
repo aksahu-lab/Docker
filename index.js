@@ -12,8 +12,10 @@ const YAML = require('yamljs');
 
 const userDashboardRoutes = require('./module/userdashboard/userdashboard');
 const publicFeedsRoute = require('./module/userdashboard/publicfeed');
-const onboardRoutes = require('./module/useronboard/onboard');
+const onboardRoutes = require('./module/useronboard/clientOnBoard');
 const socialBuilderRoute = require('./module/SocialBuilder/socialBuilder');
+
+const studioOnboardRoutes = require('./module/StudioOnBoard/StudioOnboard');
 
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
@@ -27,6 +29,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
  * @param {Object} res - Express response object
  */
 app.use('/api/user', onboardRoutes.redirectToActualRouter);
+
+/**
+ * Redirects the request to the appropriate router for user-related actions.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter);
 
 
 /**
