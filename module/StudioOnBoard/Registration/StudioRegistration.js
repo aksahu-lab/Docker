@@ -35,6 +35,7 @@ function registerUser(req, res, path) {
           INSERT INTO \`${tableName}\`
           (
             \`studioName\`,
+            \`emailOrContact\`,
             \`studioId\`,
             \`createdDate\`,
             \`usertype\`,
@@ -69,31 +70,12 @@ function registerUser(req, res, path) {
         const values = [
           [
             req.body.studioName,
+            req.body.contact,
             studioId,
             currentDate,
-            req.body.usertype,
+            "Studio",
             req.body.password,
-            req.body.contactFirstname,
-            req.body.contactLastname,
-            req.body.contactnumber,
-            req.body.gender,
-            req.body.city,
-            req.body.pinCode,
-            req.body.street,
-            req.body.landMark,
-            req.body.latitude,
-            req.body.longnitute,
-            req.body.businessWPNumber,
-            req.body.aboutStudio,
-            req.body.establishedon,
-            "",
-            "",
-            req.body.travelpolicy,
-            req.body.cancelpolicy,
-            req.body.paymentpolicy,
-            req.body.studiowebsite,
-            req.body.studiofbpage,
-            req.body.studiotweeterpage,
+            "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
           ],
         ];
 
