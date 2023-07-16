@@ -19,7 +19,7 @@ const regroutes = express.Router();
  * @param {Object} res - The response object.
  * @param {string} path - The path of the profile image.
  */
-function registerUser(req, res, path) {
+function registerStudio(req, res, path) {
   tableCheck.checkStudioTablePresent((result) => {
     if (result === 1) {
       const sql = 'SELECT COUNT(*) AS total FROM studio';
@@ -117,4 +117,4 @@ function deleteFile(file, callback) {
 }
 
 module.exports = regroutes;
-module.exports = { registerUser };
+module.exports = { registerStudio };

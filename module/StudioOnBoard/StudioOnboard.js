@@ -42,10 +42,10 @@ function redirectToActualRouter(req, res) {
                 const regroutes = require('./Registration/StudioRegistration');
                 if (!req.file) {
                     console.log("\n\nGyana - 1\n\n");
-                    regroutes.registerUser(req, res, `./Assets/profile_placeholder.png`);
+                    regroutes.registerStudio(req, res, `./Assets/profile_placeholder.png`);
                 } else {
                     console.log("\n\nGyana - 2\n\n");
-                    regroutes.registerUser(req, res, req.file.path);
+                    regroutes.registerStudio(req, res, req.file.path);
                 }
               }
             });

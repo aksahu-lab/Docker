@@ -119,8 +119,8 @@ function checkStudioTablePresent(myCallback) {
 function creatStudioTable(myCallback) {
     let createTablesqlQ = `
     CREATE TABLE \`mystudio\`.\`studio\` (
-      \`studioName\` VARCHAR(50) NOT NULL,
-      \`emailOrContact\` VARCHAR(30) NOT NULL,
+      \`studioName\` VARCHAR(50) NOT NULL UNIQUE,
+      \`emailOrContact\` VARCHAR(30) NOT NULL UNIQUE,
       \`studioId\` VARCHAR(20) NOT NULL UNIQUE,
       \`createdDate\` VARCHAR(25) NULL,
       \`usertype\` VARCHAR(20) NULL,
