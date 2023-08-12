@@ -148,8 +148,7 @@ function creatStudioTable(myCallback) {
       \`studiotweeterpage\` VARCHAR(200) NULL,
       PRIMARY KEY (\`studioId\`)
     );
-  `;
-      
+  `;   
     database.connection.query(createTablesqlQ, (error, result, fields)=> {
         myCallback(0);
         return;

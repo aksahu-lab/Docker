@@ -5,21 +5,37 @@
 //
 
 const express = require('express');
-const app = express();
+const cors = require('cors');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const YAML = require('yamljs');
+
+const app = express();
+
+app.use(express.json()); // Parse JSON request bodies
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
+
 
 const userDashboardRoutes = require('./module/userdashboard/userdashboard');
 const publicFeedsRoute = require('./module/userdashboard/publicfeed');
 const onboardRoutes = require('./module/useronboard/clientOnBoard');
 const socialBuilderRoute = require('./module/SocialBuilder/socialBuilder');
 
-const studioOnboardRoutes = require('./module/StudioOnBoard/StudioOnboard');
+const studioOnboardRoutes = require('./module/Studio/StudioRouter');
 const studioInfoRoutes = require('./module/Vendor/Studio/studioinfo');
 
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
+
+
+// app.use(cors({}));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
+app.options('*');
+
 
 // Serve the Swagger UI at the /api-docs endpoint
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -36,7 +52,7 @@ app.use('/api/user', onboardRoutes.redirectToActualRouter);
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter);
+app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter, cors());
 
 /**
  * Redirects the request to the appropriate router for user-related actions.
@@ -100,9 +116,19 @@ app.use('/api/social', socialBuilderRoute, (req, res) => {
  */
 app.get('/', (req, res) => {});
 
+
 const port = 8080;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
 
-module.exports = app;
+// module.exports = app;
+module.exports = function(app) {
+  app.use(
+    '/api',
+    createProxyMiddleware({
+      target: 'http://localhost:8080',
+      changeOrigin: true,
+    })
+  );
+};

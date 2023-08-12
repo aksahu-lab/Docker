@@ -87,8 +87,28 @@ function redirectToActualRouter(req, res) {
           loginRoutes.getUserProfile(req, res);
         });
         break;
+      case '/getAllClients':
+        multer.none()(req, res, () => {
+          const clientmanagerRoutes = require('./StudioDashBoard/Client/clientmanager');
+          clientmanagerRoutes.getAllClients(req, res);
+        });
+        break;
+      case '/getAlbumForClient':
+        multer.none()(req, res, () => {
+          const clientRoutes = require('./StudioDashBoard/Client/clientmanager');
+          clientRoutes.getAlbumForClient(req, res);
+        });
+        break;
+      case '/getAllphotos':
+        multer.none()(req, res, () => {
+          const clientRoutes = require('./StudioDashBoard/Client/clientmanager');
+          clientRoutes.getAlbumForClient(req, res);
+        });
+        break;
+    
       default:
-        console.log('No API');
+      console.log('No API');
+      break;
     }
 }
 

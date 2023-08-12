@@ -102,6 +102,7 @@ function registerStudio(req, res, path) {
   });
 }
 
+
 /**
  * Deletes a file.
  * @param {string} file - The path of the file to delete.
