@@ -32,26 +32,26 @@ function getAllClients(req, res) {
 
                 // Iterate over each item in the data array
                 data.forEach((item) => {
-                // if (item.state === 1) {
-                    const clientInfo = {
-                        "usertype": "General",
-                        "profileimage": item.download_url,
-                        "firstname": "Gyana",
-                        "lastname": "Gouda",
-                        "gender": "Male",
-                        "city": "Berhampur",
-                        "Contact": "+91-8895666168",
-                        "EventDate": "29/Dec/2023"
-                    }
-                    inProgressArray.push(clientInfo);
-                // } else if (item.state === 2) {
-                //     completedArray.push(item);
-                // } else if (item.state === 3) {
-                //     deliveredArray.push(item);
-                // }
+                  // if (item.state === 1) {
+                      const clientInfo = {
+                          "usertype": "General",
+                          "profileimage": item.download_url,
+                          "firstname": "Gyana",
+                          "lastname": "Gouda",
+                          "gender": "Male",
+                          "city": "Berhampur",
+                          "Contact": "+91-8895666168",
+                          "EventDate": "29/Dec/2023"
+                      }
+                      inProgressArray.push(clientInfo);
+                  // } else if (item.state === 2) {
+                      completedArray.push(clientInfo);
+                  // } else if (item.state === 3) {
+                      deliveredArray.push(clientInfo);
+                  // }
                 });
     
-                res.status(200).json(inProgressArray);    
+                res.status(200).json({inprogressAlbum: inProgressArray, completedAlbum:completedArray, deliveredAlbum:deliveredArray});    
             } catch (error) {
                 console.error('Error:', error);
             }
@@ -124,13 +124,79 @@ function getAllphotos(req, res) {
                 const data = await fetchClientsFromDifferentServer();
                 const inProgressArray = [];
                 // Iterate over each item in the data array
+
                 data.forEach((item) => {
                   const photoInfo = {
                       "albumId": "General",
                       "imageUrl": item.download_url,
+                      "downloadUrl": item.download_url,
                       "fileName": "Gyana",
-                      "fileId": "Gouda",
-                      "EventDate": "29/Dec/2023"
+                      "fileId": "Gobjbbjuda",
+                      "width":'325',
+                      "height":'200',
+                      "Resolution":'144 × 144',
+                      "fileSize":'10MB',
+                      "EventDate": "29/Dec/2023",
+                      "selected":true,
+                      "isdeleted":false,
+                      "createdDate": "29/Dec/2023",
+                      "comments": [
+                          {
+                            'commented' : 'Self',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc'
+                          },
+                          {
+                            'commented' : 'You',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/103/2592/1936.jpg?hmac=aC1FT3vX9bCVMIT-KXjHLhP6vImAcsyGCH49vVkAjPQ'
+                          },{
+                            'commented' : 'Self',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc'
+                          },
+                          {
+                            'commented' : 'You',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/103/2592/1936.jpg?hmac=aC1FT3vX9bCVMIT-KXjHLhP6vImAcsyGCH49vVkAjPQ'
+                          },{
+                            'commented' : 'Self',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc'
+                          },
+                          {
+                            'commented' : 'You',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/103/2592/1936.jpg?hmac=aC1FT3vX9bCVMIT-KXjHLhP6vImAcsyGCH49vVkAjPQ'
+                          },{
+                            'commented' : 'Self',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc'
+                          },
+                          {
+                            'commented' : 'You',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/103/2592/1936.jpg?hmac=aC1FT3vX9bCVMIT-KXjHLhP6vImAcsyGCH49vVkAjPQ'
+                          },{
+                            'commented' : 'Self',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc'
+                          },
+                          {
+                            'commented' : 'You',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/103/2592/1936.jpg?hmac=aC1FT3vX9bCVMIT-KXjHLhP6vImAcsyGCH49vVkAjPQ'
+                          },{
+                            'commented' : 'Self',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc'
+                          },
+                          {
+                            'commented' : 'You',
+                            'CommentText': "You can now view mystudiostudiounboard in the browser.",
+                            'profileImage': 'https://fastly.picsum.photos/id/103/2592/1936.jpg?hmac=aC1FT3vX9bCVMIT-KXjHLhP6vImAcsyGCH49vVkAjPQ'
+                          }
+                        ]
                   }
                   inProgressArray.push(photoInfo);
                 });

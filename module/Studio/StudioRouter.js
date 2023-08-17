@@ -93,16 +93,16 @@ function redirectToActualRouter(req, res) {
           clientmanagerRoutes.getAllClients(req, res);
         });
         break;
-      case '/getAlbumForClient':
+      case '/getAlbums':
         multer.none()(req, res, () => {
           const clientRoutes = require('./StudioDashBoard/Client/clientmanager');
           clientRoutes.getAlbumForClient(req, res);
         });
         break;
-      case '/getAllphotos':
+      case '/getPhotos':
         multer.none()(req, res, () => {
           const clientRoutes = require('./StudioDashBoard/Client/clientmanager');
-          clientRoutes.getAlbumForClient(req, res);
+          clientRoutes.getAllphotos(req, res);
         });
         break;
     
