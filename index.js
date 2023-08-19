@@ -5,11 +5,14 @@
 //
 
 const express = require('express');
+require('./src/database/mongoose');
 const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const YAML = require('yamljs');
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 
@@ -25,6 +28,8 @@ const socialBuilderRoute = require('./module/SocialBuilder/socialBuilder');
 const studioOnboardRoutes = require('./module/Studio/StudioRouter');
 const studioInfoRoutes = require('./module/Vendor/Studio/studioinfo');
 
+const studioRouter = require('./src/routers/studio')
+
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
 
@@ -36,6 +41,7 @@ app.use(cors({
 }));
 app.options('*');
 
+app.use('/api/studio', studioRouter);
 
 // Serve the Swagger UI at the /api-docs endpoint
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -52,7 +58,7 @@ app.use('/api/user', onboardRoutes.redirectToActualRouter);
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter, cors());
+// app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter, cors());
 
 /**
  * Redirects the request to the appropriate router for user-related actions.
@@ -116,8 +122,7 @@ app.use('/api/social', socialBuilderRoute, (req, res) => {
  */
 app.get('/', (req, res) => {});
 
-
-const port = 8080;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });

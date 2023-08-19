@@ -227,16 +227,18 @@ function renameDirectory(oldPath, newPath, callback) {
 }
 
 function getCurrentDate() {
-  const currentDate = new Date();
+  const currentDate = new Date(); //This should be UTC
   const day = String(currentDate.getDate()).padStart(2, '0');
   const month = String(currentDate.getMonth() + 1).padStart(2, '0');
   const year = currentDate.getFullYear();
   return `${day}/${month}/${year}`;
 }
 
-function generateUniqueId(length, prefix) {
+function generateUniqueId(length = 32, prefix) {
   const { v4: uuidv4 } = require('uuid');
-  const uniqueId = uuidv4().replace(/-/g, '').slice(0, length);
+  const uuid = uuidv4().replace(/-/g, '');
+  console.log('uuid: ', uuid);
+  const uniqueId = uuid.slice(0, length);
   return prefix ? `${prefix}${uniqueId}` : uniqueId;
 }
 
