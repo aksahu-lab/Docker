@@ -60,7 +60,7 @@ app.use('/api/user', onboardRoutes.redirectToActualRouter);
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-// app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter, cors());
+app.use('/api/studio', studioOnboardRoutes.redirectToActualRouter, cors());
 
 /**
  * Redirects the request to the appropriate router for user-related actions.

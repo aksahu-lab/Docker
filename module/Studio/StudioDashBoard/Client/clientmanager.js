@@ -23,6 +23,7 @@ const tableCheck = require('../../../databasemanager/tablecheck');
 function getAllClients(req, res) {
   // jwt.verifyToken(req.body.token, (error, decoded) => {
   //   if (error === 1) {
+    console.log('getAllClients = ' + req.body );
         (async () => {
             try {
                 const data = await fetchClientsFromDifferentServer();

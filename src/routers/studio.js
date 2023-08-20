@@ -9,7 +9,10 @@ const OtpSchema = require('../models/otpschema'); // Assuming you've imported th
 const router = new express.Router()
 
 router.post('/sendotp', async (req, res) => {
-    const parsedBody = JSON.parse(req.body.toString());
+    console.log("sendotp = " + req.body.mobile);
+
+    const parsedBody = req.body;
+
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
     const secret = speakeasy.generateSecret();
     const token = speakeasy.totp({
