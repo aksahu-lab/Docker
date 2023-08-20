@@ -43,6 +43,7 @@ Thumbs.db
 ## env file
 .env
 
+
 # Large media files
 *.mp4
 *.tiff
