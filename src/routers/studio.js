@@ -63,29 +63,24 @@ router.post('/createAlbum', auth, async (req, res) => {
 
 router.get('/albums', auth, async (req, res) => {
     const match = {}
-    console.log('getting all albums for user')
-    if (req.query.eventType) {
-        match.eventType = req.query.eventType
+    if (req.body.eventType) {
+        match.eventType = req.body.eventType
     }
-    if (req.query.status) {
-        match.status = req.query.status
+    if (req.body.status) {
+        match.status = req.body.status
     }
-    console.log(match)
-    console.log(req.user)
     try {
         await req.user.populate('albums')
         await req.user.populate({
-            path: 'albums'
-            ,
+            path: 'albums',
             match,
             options: {
                 limit: parseInt(req.query.limit),
                 skip: parseInt(req.query.skip)
             }
-        }).execPopulate()
+        })
         res.send(req.user.albums)
     } catch (e) {
-        console.log(e)
         res.status(500).send()
     }
 })
