@@ -37,6 +37,18 @@ const userSchema = mongoose.Schema({
             }
         }
     },
+    profileimage: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    },
+    coverimage: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    },
     tokens: [{
         token: {
             type: String,

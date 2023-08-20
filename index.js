@@ -33,6 +33,8 @@ const studioRouter = require('./src/routers/studio')
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
 
+app.use(express.json()); // Parse JSON request bodies
+app.use(express.raw({ type: '*/*' })); // Parse all other request bodies as raw
 
 // app.use(cors({}));
 app.use(cors({

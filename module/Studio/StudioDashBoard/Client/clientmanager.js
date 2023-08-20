@@ -21,8 +21,8 @@ const tableCheck = require('../../../databasemanager/tablecheck');
  * @param {Object} res - The response object.
  */
 function getAllClients(req, res) {
-  jwt.verifyToken(req.body.token, (error, decoded) => {
-    if (error === 1) {
+  // jwt.verifyToken(req.body.token, (error, decoded) => {
+  //   if (error === 1) {
         (async () => {
             try {
                 const data = await fetchClientsFromDifferentServer();
@@ -56,10 +56,10 @@ function getAllClients(req, res) {
                 console.error('Error:', error);
             }
         })();     
-    } else {
-      res.status(200).json({ message: 'Token Expired' });
-    }
-  });
+  //   } else {
+  //     res.status(200).json({ message: 'Token Expired' });
+  //   }
+  // });
 }
 
 /**
@@ -68,8 +68,8 @@ function getAllClients(req, res) {
  * @param {Object} res - The response object.
  */
 function getAlbumForClient(req, res) {
-  jwt.verifyToken(req.body.token, (error, decoded) => {
-    if (error === 1) {
+  // jwt.verifyToken(req.body.token, (error, decoded) => {
+  //   if (error === 1) {
 
         (async () => {
             try {
@@ -104,10 +104,10 @@ function getAlbumForClient(req, res) {
                 console.error('Error:', error);
             }
         })();     
-    } else {
-      res.status(200).json({ message: 'Token Expired' });
-    }
-  });
+  //   } else {
+  //     res.status(200).json({ message: 'Token Expired' });
+  //   }
+  // });
 }
 
 /**
@@ -116,8 +116,8 @@ function getAlbumForClient(req, res) {
  * @param {Object} res - The response object.
  */
 function getAllphotos(req, res) {
-  jwt.verifyToken(req.body.token, (error, decoded) => {
-    if (error === 1) {
+  // jwt.verifyToken(req.body.token, (error, decoded) => {
+  //   if (error === 1) {
 
         (async () => {
             try {
@@ -206,10 +206,10 @@ function getAllphotos(req, res) {
                 console.error('Error:', error);
             }
         })();     
-    } else {
-      res.status(200).json({ message: 'Token Expired' });
-    }
-  });
+  //   } else {
+  //     res.status(200).json({ message: 'Token Expired' });
+  //   }
+  // });
 }
   
 
