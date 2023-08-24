@@ -9,9 +9,19 @@ const OtpSchema = require('../models/otpschema'); // Assuming you've imported th
 const router = new express.Router()
 
 router.post('/sendotp', async (req, res) => {
-    console.log("sendotp = " + req.body.mobile);
+    console.log("sendotp = ");
 
-    const parsedBody = req.body;
+    let data;
+
+    // Attempt to parse req.body as JSON
+    try {
+        const rawBody = req.body.toString('utf8');
+        data = JSON.parse(rawBody);
+    } catch (error) {
+        // If parsing fails, use req.body as a string
+        data = req.body;
+    }
+
 
     const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
     const secret = speakeasy.generateSecret();
@@ -23,14 +33,14 @@ router.post('/sendotp', async (req, res) => {
     .create({
         body: `Hello, Your OTP code is: ${token}`,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: parsedBody.mobile,
+        to: data.mobile,
     })
     .then((message) => {
         console.log('Message SID:', message.sid); // Unique identifier for the sent message
         console.log('Message Status:', message.status); // Status of the message (e.g., "sent", "delivered", "failed")
         const newOTP = new OtpSchema({
             otp: token, // Replace with the generated OTP
-            to: parsedBody.mobile,
+            to: data.mobile,
             expired_at: new Date(new Date().getTime() + 1 * 60 * 1000), // OTP expires in 10 minutes
         });
         newOTP.save().then((otpDoc) => {
@@ -53,14 +63,22 @@ router.post('/sendotp', async (req, res) => {
 
 router.post('/verifyotp', async (req, res) => {
     try {
-        console.log("Verify Otp = " + req.body.toString());
-        const parsedBody = JSON.parse(req.body.toString());
+        let data;
+        // Attempt to parse req.body as JSON
+        try {
+            const rawBody = req.body.toString('utf8');
+            data = JSON.parse(rawBody);
+        } catch (error) {
+            // If parsing fails, use req.body as a string
+            data = req.body;
+        }
 
-        // Find the OTP document for the user with the provided user ID
         const otpDocument = await OtpSchema.findOne({
-            otp: parsedBody.otp
-        });
-    
+            otp: data.otp,
+            to: data.mobile
+          });
+
+          
         if (otpDocument) {
           // OTP is valid
           // Proceed with user authentication or any other action

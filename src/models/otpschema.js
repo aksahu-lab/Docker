@@ -4,7 +4,7 @@ const validator = require('validator')
 const otpschemamodel = new mongoose.Schema({
   to: {
     type: String,
-    required: false,
+    required: true,
     },
   otp: {
     type: String,
