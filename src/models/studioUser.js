@@ -6,18 +6,24 @@ const jwt = require('jsonwebtoken')
 const userSchema = mongoose.Schema({
     studioName: {
         type: String,
-        required: true,
+        required: false,
         trim: true
     },
-    mobile: {
+    studioMobile: {
         type: String,
-        required: true,
+        required: false,
+        unique: true,
+        trim: true
+    },
+    studioLandline: {
+        type: String,
+        required: false,
         unique: true,
         trim: true
     },
     email: {
         type: String,
-        required: true,
+        required: false,
         unique: true,
         trim: true,
         lowercase: true,
@@ -26,6 +32,81 @@ const userSchema = mongoose.Schema({
                 throw new Error('Email is invalid')
             }
         }
+    },
+    alternativeEmail: {
+        type: String,
+        required: false,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error('Email is invalid')
+            }
+        }
+    },
+    contactPersonName: {
+        type: String,
+        required: false,
+        unique: true,
+        trim: true,
+        lowercase: true
+    },
+    contactPersonMobile: {
+        type: String,
+        required: false,
+        unique: true,
+        trim: true
+    },
+    studioLocation: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    studioPinCode: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    areaCanServe: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    address: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    landMark: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    latitude: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    longnitude: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    businessWhatsAppMobile: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    aboutStudio: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    workingSince: {
+        type: String,
+        required: false,
+        trim: true
     },
     password: {
         type: String,
@@ -44,6 +125,12 @@ const userSchema = mongoose.Schema({
         trim: false
     },
     coverimage: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    },
+    otp: {
         type: String,
         required: false,
         unique: false,
