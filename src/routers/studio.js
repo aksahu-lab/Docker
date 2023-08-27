@@ -102,16 +102,78 @@ router.post('/verifyotp', async (req, res) => {
 router.post('/signup', async (req, res) => {
     const user = new StudioUser(req.body)
     try {
-        await user.save()
         console.log('user details: ', user)
+        
+        if (!user.studioMobile) {
+            return res.status(400).send({ message: 'Please enter mobile number.' });
+        }
+        
+        await user.save();
         const token = await user.generateAuthToken()
         console.log('token: ', token)
         res.status(201).send({ user, token })
     } catch (e) {
-        console.log(e)
-        res.status(400).send(e.message)
-    }
+        if (e.code === 11000) {
+          // Handle duplicate key error
+          console.log('Duplicate key error:', e.message);
+          res.status(400).send('Mobile number already registered.');
+        } else {
+          // Handle other errors
+          console.log('Error:', e);
+          res.status(500).send('Internal server error.');
+        }
+      }    
 })
+
+router.post('/updateprofile', async (req, res) => {
+    console.log(req.body);
+
+    try {
+        // Find the user by their unique identifier (userId)
+        const updateUser = await StudioUser.findByCredentials(req.body.studioMobile, req.body.password);
+
+        if (!updateUser) {
+            // Handle the case where the user doesn't exist
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Define an array of fields that can be updated
+        const updatableFields = [
+            'studioName',
+            'studioEmail',
+            'studioAltEmail',
+            'businessWhatsApp',
+            'contactPersonName',
+            'contactPersonNumber',
+            'address',
+            'AddressLandMark',
+            'PinCode',
+            'latitude',
+            'longnitude',
+            'areaCanServe',
+            'workingSince',
+            'aboutStudio',
+            'studioRequest',
+        ];
+
+        // Create an update object with the $set operator for each field that has a value in the request
+        const updateObject = {};
+        updatableFields.forEach((field) => {
+            if (req.body[field] !== undefined && req.body[field] !== '') {
+                updateObject[field] = req.body[field];
+            }
+        });
+
+        // Update the user's fields using the $set operator
+        await StudioUser.updateOne({ _id: updateUser._id }, { $set: updateObject });
+
+        return res.status(200).json({ success: true, message: 'User updated successfully', updatedUser: updateUser });
+    } catch (e) {
+        console.error(e);
+        return res.status(400).json({ success: false, message: 'Failed to update user' });
+    }
+});
+
 
 router.post('/signin', async (req, res) => {
     try {

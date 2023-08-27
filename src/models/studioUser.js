@@ -4,16 +4,69 @@ const bcryptjs = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
 const userSchema = mongoose.Schema({
+    role: {
+        type: String,
+        required: true,
+        trim: true
+    },
     studioName: {
         type: String,
         required: false,
         trim: true
     },
-    studioMobile: {
+    studioEmail: {
         type: String,
         required: false,
         unique: true,
-        trim: true
+        trim: true,
+        lowercase: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error('Email is invalid')
+            }
+        }
+    },
+    studioAltEmail: {
+        type: String,
+        required: false,
+        unique: true,
+        trim: true,
+        lowercase: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error('Email is invalid')
+            }
+        }
+    },
+    businessWhatsApp: {
+        type: String,
+        required: false,
+        trim: true,
+        validate: {
+            validator: async function (value) {
+                if (!value && value !== null) {
+                    return true; // Allow null values
+                }
+                const count = await mongoose.model('StudioUser').countDocuments({ studioMobile: value });
+                return count === 0;
+            },
+            message: 'Mobile number already registered.'
+        }
+    },
+    studioMobile: {
+        type: String,
+        required: false,
+        trim: true,
+        validate: {
+            validator: async function (value) {
+                if (!value && value !== null) {
+                    return true; // Allow null values
+                }
+                const count = await mongoose.model('StudioUser').countDocuments({ studioMobile: value });
+                return count === 0;
+            },
+            message: 'Mobile number already registered.'
+        }
     },
     studioLandline: {
         type: String,
@@ -21,30 +74,7 @@ const userSchema = mongoose.Schema({
         unique: true,
         trim: true
     },
-    email: {
-        type: String,
-        required: false,
-        unique: true,
-        trim: true,
-        lowercase: true,
-        validate(value) {
-            if (!validator.isEmail(value)) {
-                throw new Error('Email is invalid')
-            }
-        }
-    },
-    alternativeEmail: {
-        type: String,
-        required: false,
-        unique: true,
-        trim: true,
-        lowercase: true,
-        validate(value) {
-            if (!validator.isEmail(value)) {
-                throw new Error('Email is invalid')
-            }
-        }
-    },
+
     contactPersonName: {
         type: String,
         required: false,
@@ -52,18 +82,27 @@ const userSchema = mongoose.Schema({
         trim: true,
         lowercase: true
     },
-    contactPersonMobile: {
+
+    contactPersonNumber: {
         type: String,
         required: false,
         unique: true,
         trim: true
     },
-    studioLocation: {
+
+    address: {
         type: String,
         required: false,
         trim: true
     },
-    studioPinCode: {
+
+    AddressLandMark: {
+        type: String,
+        required: false,
+        trim: true
+    },
+
+    PinCode: {
         type: String,
         required: false,
         trim: true
@@ -73,16 +112,7 @@ const userSchema = mongoose.Schema({
         required: false,
         trim: true
     },
-    address: {
-        type: String,
-        required: false,
-        trim: true
-    },
-    landMark: {
-        type: String,
-        required: false,
-        trim: true
-    },
+
     latitude: {
         type: String,
         required: false,
@@ -99,6 +129,11 @@ const userSchema = mongoose.Schema({
         trim: true
     },
     aboutStudio: {
+        type: String,
+        required: false,
+        trim: true
+    },
+    studioRequest: {
         type: String,
         required: false,
         trim: true
@@ -172,19 +207,19 @@ userSchema.pre('save', async function (next) {
     next()
 })
 
-
 userSchema.post('save', function(error, doc, next) {
-    console.log(error)
-    if ( error.code === 11000) {
-        if(error.keyPattern.mobile) {
-            next(new Error('mobile already registered'));
+    if (error.code === 11000) {
+        if (error.keyPattern.studioMobile) {
+            throw new Error('Mobile number already registered.')
         } else {
-            next(new Error('email already registered'));
+            // Handle other unique constraints if needed
+            throw new Error('Another unique constraint violated.')
         }
     } else {
         next(error);
     }
 });
+
 
 /**
  * Generates user token with _id field
@@ -210,8 +245,8 @@ userSchema.methods.generateAuthToken = async function () {
  * @param {*} password 
  * @returns 
  */
-userSchema.statics.findByCredentials = async (mobile, password) => {
-    const user = await StudioUser.findOne({ mobile })
+userSchema.statics.findByCredentials = async (studioMobile, password) => {
+    const user = await StudioUser.findOne({ studioMobile })
     if (!user) {
         throw new Error('User does not exist')
     }
