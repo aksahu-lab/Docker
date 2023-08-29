@@ -20,52 +20,52 @@ const albumPath = './Media/';
 const fileUtility = new FileUtility(albumPath);
 const fileHandler = new FileHandler();
 
-userDashboardRoutes.post('/createAlbum', upload.none(), (req, res) => {
-  jwt.verifyToken(req.body.token, (error, decoded) => {
-    if (error === 1) {
-      const query = { userId: decoded.userId, albumName: req.body.albumName };
-      mongodatabase.findDocuments('useralbum', query)
-        .then((documents) => {
-          if (documents.length > 0) {
-            res.status(200).json({ message: 'Album Already Exists. Please create a different album.' });
-          } else {
-            const directoryPath = `./Media/${decoded.userId}/${req.body.albumName}`;
+// userDashboardRoutes.post('/createAlbum', upload.none(), (req, res) => {
+//   jwt.verifyToken(req.body.token, (error, decoded) => {
+//     if (error === 1) {
+//       const query = { userId: decoded.userId, albumName: req.body.albumName };
+//       mongodatabase.findDocuments('useralbum', query)
+//         .then((documents) => {
+//           if (documents.length > 0) {
+//             res.status(200).json({ message: 'Album Already Exists. Please create a different album.' });
+//           } else {
+//             const directoryPath = `./Media/${decoded.userId}/${req.body.albumName}`;
 
-            fs.mkdir(directoryPath, { recursive: true }, (err) => {
-              if (err) {
-                res.status(400).json({ error: 'Internal Server Error' });
-              } else {
-                const generatedDate = getCurrentDate();
-                const document = {
-                  userId: decoded.userId,
-                  albumName: req.body.albumName,
-                  albumID: `Mystudio_${decoded.userId}`,
-                  generatedDate: generatedDate,
-                  eventDate: req.body.eventDate,
-                  eventType: req.body.eventType,
-                  albumPath: directoryPath,
-                  files: [],
-                };
+//             fs.mkdir(directoryPath, { recursive: true }, (err) => {
+//               if (err) {
+//                 res.status(400).json({ error: 'Internal Server Error' });
+//               } else {
+//                 const generatedDate = getCurrentDate();
+//                 const document = {
+//                   userId: decoded.userId,
+//                   albumName: req.body.albumName,
+//                   albumID: `Mystudio_${decoded.userId}`,
+//                   generatedDate: generatedDate,
+//                   eventDate: req.body.eventDate,
+//                   eventType: req.body.eventType,
+//                   albumPath: directoryPath,
+//                   files: [],
+//                 };
 
-                mongodatabase.insertDocument('useralbum', document)
-                  .then(() => {
-                    res.status(200).json({ message: 'Album Created Successfully.' });
-                  })
-                  .catch(() => {
-                    res.status(404).json({ message: 'Failed to Create Album.' });
-                  });
-              }
-            });
-          }
-        })
-        .catch((error) => {
-          console.error('Failed to find documents:', error);
-        });
-    } else {
-      res.status(200).json({ message: 'Token Expired' });
-    }
-  });
-});
+//                 mongodatabase.insertDocument('useralbum', document)
+//                   .then(() => {
+//                     res.status(200).json({ message: 'Album Created Successfully.' });
+//                   })
+//                   .catch(() => {
+//                     res.status(404).json({ message: 'Failed to Create Album.' });
+//                   });
+//               }
+//             });
+//           }
+//         })
+//         .catch((error) => {
+//           console.error('Failed to find documents:', error);
+//         });
+//     } else {
+//       res.status(200).json({ message: 'Token Expired' });
+//     }
+//   });
+// });
 
 userDashboardRoutes.post('/deleteAlbum', upload.none(), (req, res) => {
   jwt.verifyToken(req.body.token, (error, decoded) => {

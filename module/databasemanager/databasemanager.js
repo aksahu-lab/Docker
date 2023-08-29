@@ -13,7 +13,7 @@ const router = express.Router();
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'vihan@123',
+  password: 'Admin@777',
   database: 'mystudio',
   insecureAuth : true
 });

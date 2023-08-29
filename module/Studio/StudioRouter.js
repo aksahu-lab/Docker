@@ -27,10 +27,10 @@ function redirectToActualRouter(req, res) {
             const FileUtility = require('../multimediaupload/mediaupload');
             const fileUtil = new FileUtility(albumPath);
             const fieldName = 'file'; // The name of the field in the form data
-  
+            
             // Call uploadSingleFile as a function
             const uploadFunction = fileUtil.uploadSingleFile(fieldName);
-  
+            
             // Call the upload function by passing the request object
             uploadFunction(req, res, function (err) {
               if (err) {

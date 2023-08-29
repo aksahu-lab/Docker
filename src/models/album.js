@@ -19,13 +19,13 @@ const albumSchema = new mongoose.Schema({
     studio: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
-        ref: 'StudioUser'
+        ref: 'Studio'
     },
-    // client: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     required: true,
-    //     ref: 'User'
-    // }
+    client: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'User'
+    }
 }, {
     timestamps: true
 })

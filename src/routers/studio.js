@@ -1,5 +1,6 @@
 const express = require('express')
-const StudioUser = require('../models/studioUser')
+const Studio = require('../models/studio')
+const User = require('../models/user')
 const Album = require('../models/album')
 const auth = require('../middleware/auth')
 const speakeasy = require('speakeasy');
@@ -100,11 +101,11 @@ router.post('/verifyotp', async (req, res) => {
 })
 
 router.post('/signup', async (req, res) => {
-    const user = new StudioUser(req.body)
+    const user = new User(req.body)
     try {
         console.log('user details: ', user)
-        
-        if (!user.studioMobile) {
+        //This should be handled in mobile
+        if (!user.mobile) {
             return res.status(400).send({ message: 'Please enter mobile number.' });
         }
         
@@ -113,6 +114,7 @@ router.post('/signup', async (req, res) => {
         console.log('token: ', token)
         res.status(201).send({ user, token })
     } catch (e) {
+        //This should be handled in schema
         if (e.code === 11000) {
           // Handle duplicate key error
           console.log('Duplicate key error:', e.message);
@@ -179,7 +181,7 @@ router.post('/signin', async (req, res) => {
     try {
         console.log('req.body.mobile: ', req.body.mobile)
         console.log('req.body.mobile: ', req.body.password)
-        const user = await StudioUser.findByCredentials(req.body.mobile, req.body.password)
+        const user = await User.findByCredentials(req.body.mobile, req.body.password)
     
         user.profileimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
         user.coverimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
@@ -204,15 +206,17 @@ router.post('/signout', auth, async (req, res) => {
     }
 })
 
-router.post('/createAlbum', auth, async (req, res) => {
-    console.log('creating album!!')
+router.post('/createAlbum', auth('admin'), async (req, res) => {
     const album = new Album({
         ...req.body,
-        studio: req.user._id
+        studio: req.user.studio
     })
-
     try {
         await album.save()
+        await User.updateOne({_id: req.body.client},{ $push: { albums: album._id } } )
+        // const user = await User.findOne({ _id: req.body.client})
+        // user.albums.push(album._id)
+        // await user.save()
         res.status(201).send(album)
     } catch (e) {
         res.status(400).send(e.message)
@@ -220,8 +224,32 @@ router.post('/createAlbum', auth, async (req, res) => {
 })
 
 
-router.get('/albums', auth, async (req, res) => {
-    const match = {}
+// router.get('/albums', auth, async (req, res) => {
+//     const match = {}
+//     if (req.body.eventType) {
+//         match.eventType = req.body.eventType
+//     }
+//     if (req.body.status) {
+//         match.status = req.body.status
+//     }
+//     try {
+//         await req.user.populate('albums')
+//         await req.user.populate({
+//             path: 'albums',
+//             match,
+//             options: {
+//                 limit: parseInt(req.query.limit),
+//                 skip: parseInt(req.query.skip)
+//             }
+//         })
+//         res.send(req.user.albums)
+//     } catch (e) {
+//         res.status(500).send()
+//     }
+// })
+
+router.get('/albums', auth('admin'), async (req, res) => {
+    const match = {studio:  req.user.studio}
     if (req.body.eventType) {
         match.eventType = req.body.eventType
     }
@@ -229,8 +257,9 @@ router.get('/albums', auth, async (req, res) => {
         match.status = req.body.status
     }
     try {
-        await req.user.populate('albums')
-        await req.user.populate({
+        // User.findById(req.body.client).albums
+        // await req.user.populate('albums')
+        const albumsA = await User.findById(req.body.client).populate({
             path: 'albums',
             match,
             options: {
@@ -238,10 +267,43 @@ router.get('/albums', auth, async (req, res) => {
                 skip: parseInt(req.query.skip)
             }
         })
-        res.send(req.user.albums)
+        console.log(albumsA)
+        //TODO: fix it properly
+        res.send(await (await User.findById(req.body.client)).albums)
     } catch (e) {
         res.status(500).send()
     }
 })
 
+router.post('/addStudio', auth('admin'), async (req, res) => {
+    const studio = new Studio({
+        ...req.body,
+        addedBy: req.user._id
+    })
+    try {
+        await studio.save()
+        req.user.studio = studio._id
+        await req.user.save()
+        res.status(201).send({ studio })
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
+//TODO: generate a temp password and send that to email, once client login ask them to reset password
+router.post('/addClient', auth('admin'), async (req, res) => {
+    const user = new User({
+        ...req.body,
+        addedBy: req.user._id,
+        password: process.env.TEMP_PASSWORD
+    })
+    try {
+        await user.save()
+        res.status(201).send({ user })
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
 module.exports = router

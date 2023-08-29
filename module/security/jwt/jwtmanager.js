@@ -20,7 +20,7 @@ function generateToken(req, callback) {
 function verifyToken(token, callback) {
     jwt.verify(token, secretKey, (err, decoded) => {
       if (err) {
-        callback(0, decoded);
+        callback(1, decoded);
         return;
       }
       callback(1, decoded);
