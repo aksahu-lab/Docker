@@ -194,7 +194,7 @@ router.post('/signin', async (req, res) => {
     }
 })
 
-router.post('/signout', auth, async (req, res) => {
+router.post('/signout', auth(), async (req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter((token) => {
             return token.token !== req.token
@@ -214,9 +214,6 @@ router.post('/createAlbum', auth('admin'), async (req, res) => {
     try {
         await album.save()
         await User.updateOne({_id: req.body.client},{ $push: { albums: album._id } } )
-        // const user = await User.findOne({ _id: req.body.client})
-        // user.albums.push(album._id)
-        // await user.save()
         res.status(201).send(album)
     } catch (e) {
         res.status(400).send(e.message)
@@ -224,31 +221,31 @@ router.post('/createAlbum', auth('admin'), async (req, res) => {
 })
 
 
-// router.get('/albums', auth, async (req, res) => {
-//     const match = {}
-//     if (req.body.eventType) {
-//         match.eventType = req.body.eventType
-//     }
-//     if (req.body.status) {
-//         match.status = req.body.status
-//     }
-//     try {
-//         await req.user.populate('albums')
-//         await req.user.populate({
-//             path: 'albums',
-//             match,
-//             options: {
-//                 limit: parseInt(req.query.limit),
-//                 skip: parseInt(req.query.skip)
-//             }
-//         })
-//         res.send(req.user.albums)
-//     } catch (e) {
-//         res.status(500).send()
-//     }
-// })
-
 router.get('/albums', auth('admin'), async (req, res) => {
+    const match = {}
+    if (req.body.eventType) {
+        match.eventType = req.body.eventType
+    }
+    if (req.body.status) {
+        match.status = req.body.status
+    }
+    try {
+        const studio = await Studio.findById(req.user.studio).populate({
+            path: 'albums',
+            match,
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            },
+            select: '_id albumName status eventType client'
+        })
+        res.send(studio.albums)
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+router.get('/clientAlbums', auth('admin'), async (req, res) => {
     const match = {studio:  req.user.studio}
     if (req.body.eventType) {
         match.eventType = req.body.eventType
@@ -257,19 +254,16 @@ router.get('/albums', auth('admin'), async (req, res) => {
         match.status = req.body.status
     }
     try {
-        // User.findById(req.body.client).albums
-        // await req.user.populate('albums')
-        const albumsA = await User.findById(req.body.client).populate({
+        const user = await User.findById(req.body.client).populate({
             path: 'albums',
             match,
             options: {
                 limit: parseInt(req.query.limit),
                 skip: parseInt(req.query.skip)
-            }
+            },
+            select: '_id albumName status eventType'
         })
-        console.log(albumsA)
-        //TODO: fix it properly
-        res.send(await (await User.findById(req.body.client)).albums)
+        res.send(user.albums)
     } catch (e) {
         res.status(500).send()
     }
