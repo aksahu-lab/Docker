@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: true,
+        required: [true, 'Firstname is required'],
         trim: true
     },
     lastName: {
@@ -16,13 +16,13 @@ const userSchema = new mongoose.Schema({
     },
     mobile: {
         type: String,
-        required: true,
+        required: [true, 'Mobile number is required'],
         unique: true,
         trim: true
     },
     email: {
         type: String,
-        required: false,
+        required: [true, 'Email is required'],
         unique: true,
         trim: true,
         lowercase: true,
@@ -63,10 +63,13 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Album'
     }],
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
     tokens: [{
         token: {
-            type: String,
-            required: true
+            type: String
         }
     }]
 }, {
@@ -104,8 +107,10 @@ userSchema.post('save', function(error, doc, next) {
     if ( error.code === 11000) {
         if(error.keyPattern.mobile) {
             next(new Error('mobile already registered'));
-        } else {
+        } else if(error.keyPattern.email) {
             next(new Error('email already registered'));
+        } else {
+            next(new Error('User already registered'));
         }
     } else {
         next(error);

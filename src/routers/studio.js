@@ -101,29 +101,16 @@ router.post('/verifyotp', async (req, res) => {
 })
 
 router.post('/signup', async (req, res) => {
-    const user = new User(req.body)
+    const user = new User({
+        ...req.body,
+        isVerified: true //TODO: mark it as verified only when OTP validation is completed
+    })
     try {
-        console.log('user details: ', user)
-        //This should be handled in mobile
-        if (!user.mobile) {
-            return res.status(400).send({ message: 'Please enter mobile number.' });
-        }
-        
         await user.save();
         const token = await user.generateAuthToken()
-        console.log('token: ', token)
         res.status(201).send({ user, token })
     } catch (e) {
-        //This should be handled in schema
-        if (e.code === 11000) {
-          // Handle duplicate key error
-          console.log('Duplicate key error:', e.message);
-          res.status(400).send('Mobile number already registered.');
-        } else {
-          // Handle other errors
-          console.log('Error:', e);
-          res.status(500).send('Internal server error.');
-        }
+        res.status(400).send(e.message);
       }    
 })
 
@@ -206,14 +193,26 @@ router.post('/signout', auth(), async (req, res) => {
     }
 })
 
-router.post('/createAlbum', auth('admin'), async (req, res) => {
+router.post('/album', auth('admin'), async (req, res) => {
+    //When admin creates album and studio info is not mapeed to admin
+    const studio = await Studio.findById(req.user.studio)
+    if(!studio) {
+        return res.status(400).send('Please update your studio info before creating album')
+    }
+    if(!await Studio.findOne({ _id: req.user.studio, clients: req.body.client })) {
+        return res.status(400).send('Please add client before creating album for the client')
+    }
     const album = new Album({
         ...req.body,
         studio: req.user.studio
     })
+    
     try {
         await album.save()
-        await User.updateOne({_id: req.body.client},{ $push: { albums: album._id } } )
+        const user = await User.findByIdAndUpdate({_id: req.body.client},{ $push: { albums: album._id } } )
+        if(user === null) {
+            res.status(500).send('Updating user album failed')
+        }
         res.status(201).send(album)
     } catch (e) {
         res.status(400).send(e.message)
@@ -280,24 +279,61 @@ router.post('/addStudio', auth('admin'), async (req, res) => {
         await req.user.save()
         res.status(201).send({ studio })
     } catch (e) {
+        res.status(400).send(e.message)
+    }
+})
+
+//TODO: generate confirmation link and send that to email. User has to verify it and reset password
+//
+router.post('/client', auth('admin'), async (req, res) => {
+    if(!await Studio.findById(req.user.studio)) {
+        return res.status(400).send('Please add studio before adding client')
+    }
+    
+    try {
+        const user = await User.findOne({ mobile: req.body.mobile})
+        //If user already present in the system (added by other studio or signup using our portal)
+        if(user) {
+            const studio = await Studio.findOneAndUpdate(
+                { _id: req.user.studio, clients: { $ne: user._id } },
+                { $push: { clients: user._id } },
+                { new: true } )
+            if(studio === null) {
+                return res.status(400).send('The current user is already a client')
+            }
+            console.log('user already exists: ', user)
+            res.status(200).send({ user })
+        } else {
+            const user = new User({
+                ...req.body,
+                addedBy: req.user._id,
+                password: process.env.TEMP_PASSWORD
+            })
+            await user.save()
+            await Studio.findByIdAndUpdate({_id: req.user.studio},{ $push: { clients: user._id } } )
+            res.status(201).send({ user })
+        }
+        
+    } catch (e) {
         console.log(e)
         res.status(400).send(e.message)
     }
 })
 
-//TODO: generate a temp password and send that to email, once client login ask them to reset password
-router.post('/addClient', auth('admin'), async (req, res) => {
-    const user = new User({
-        ...req.body,
-        addedBy: req.user._id,
-        password: process.env.TEMP_PASSWORD
-    })
+router.get('/clients', auth('admin'), async (req, res) => {
     try {
-        await user.save()
-        res.status(201).send({ user })
+        const studio = await Studio.findById(req.user.studio).populate({
+            path: 'clients',
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            },
+            select: '_id firstName lastName mobile email'
+        })
+        res.send(studio.clients)
     } catch (e) {
         console.log(e)
-        res.status(400).send(e.message)
+        res.status(500).send()
     }
 })
 module.exports = router
