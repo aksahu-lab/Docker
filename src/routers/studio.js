@@ -169,11 +169,12 @@ router.post('/signin', async (req, res) => {
         console.log('req.body.mobile: ', req.body.mobile)
         console.log('req.body.mobile: ', req.body.password)
         const user = await User.findByCredentials(req.body.mobile, req.body.password)
-    
+        
         user.profileimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
         user.coverimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
 
         const token = await user.generateAuthToken()
+        await user.populate('studio')
         res.send({ user, token })
     } catch (e) {
         console.log(e)
