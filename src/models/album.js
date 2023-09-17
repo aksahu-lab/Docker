@@ -14,7 +14,12 @@ const albumSchema = new mongoose.Schema({
     eventType: {
         type: String,
         required: true,
-        enum: ['birthday', 'engagement', 'marriage', 'pre-wedding','post-wedding']
+        enum: [ "Half Saree", "Engagment", "Pre-Wedding", "Wedding", "Post-Wedding", "Maternity and Newborn", "Birthday", "Corporate Function", "Portraits", "Fashion", "Food Photography", "Lifestyle", "Sports", "Other" ]
+    },
+    eventDate: {
+        type: String,
+        required: true,
+        trim: true
     },
     studio: {
         type: mongoose.Schema.Types.ObjectId,

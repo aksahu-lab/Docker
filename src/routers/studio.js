@@ -114,6 +114,37 @@ router.post('/signup', async (req, res) => {
       }    
 })
 
+router.post('/signin', async (req, res) => {
+    try {
+        console.log('req.body.mobile: ', req.body.mobile)
+        console.log('req.body.mobile: ', req.body.password)
+        const user = await User.findByCredentials(req.body.mobile, req.body.password)
+        
+        user.profileimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
+        user.coverimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
+
+        const token = await user.generateAuthToken()
+        await user.populate('studio')
+        res.send({ user, token })
+    } catch (e) {
+        console.log(e)
+        res.status(400).send(e.message)
+    }
+})
+
+router.post('/signout', auth(), async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token
+        })
+        await req.user.save()
+        res.send()
+    } catch (e) {
+        res.status(500).send()
+    }
+})
+
+//TODO: Remove this, use put('/profile')
 router.post('/updateprofile', async (req, res) => {
     console.log(req.body);
 
@@ -163,27 +194,15 @@ router.post('/updateprofile', async (req, res) => {
     }
 });
 
-router.post('/addStudio', auth('admin'), async (req, res) => {
-    const studio = new Studio({
-        ...req.body,
-        addedBy: req.user._id
-    })
-    try {
-        await studio.save()
-        req.user.studio = studio._id
-        await req.user.save()
-        res.status(201).send({ studio })
-    } catch (e) {
-        res.status(400).send(e.message)
-    }
-})
-
 router.post('/profile', auth('admin'), async (req, res) => {
     const studio = new Studio({
         ...req.body,
         addedBy: req.user._id
     })
     try {
+        if(req.user.studio) {
+            res.status(400).send({ success: false, message: 'Studio information already present for this user' })
+        }
         await studio.save()
         req.user.studio = studio._id
         await req.user.save()
@@ -232,36 +251,6 @@ router.get('/profile', auth('admin'), async (req, res) => {
         res.status(201).send({ studio })
     } catch (e) {
         res.status(400).send(e.message)
-    }
-})
-
-router.post('/signin', async (req, res) => {
-    try {
-        console.log('req.body.mobile: ', req.body.mobile)
-        console.log('req.body.mobile: ', req.body.password)
-        const user = await User.findByCredentials(req.body.mobile, req.body.password)
-        
-        user.profileimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
-        user.coverimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
-
-        const token = await user.generateAuthToken()
-        await user.populate('studio')
-        res.send({ user, token })
-    } catch (e) {
-        console.log(e)
-        res.status(400).send(e.message)
-    }
-})
-
-router.post('/signout', auth(), async (req, res) => {
-    try {
-        req.user.tokens = req.user.tokens.filter((token) => {
-            return token.token !== req.token
-        })
-        await req.user.save()
-        res.send()
-    } catch (e) {
-        res.status(500).send()
     }
 })
 

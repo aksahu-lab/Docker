@@ -63,9 +63,15 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Album'
     }],
-    isVerified: {
+    isVerified: { //add email and mobile otp verified
         type: Boolean,
         default: false
+    },
+    profileimage: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: true
     },
     tokens: [{
         token: {
