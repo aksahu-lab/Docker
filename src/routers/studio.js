@@ -163,6 +163,77 @@ router.post('/updateprofile', async (req, res) => {
     }
 });
 
+router.post('/addStudio', auth('admin'), async (req, res) => {
+    const studio = new Studio({
+        ...req.body,
+        addedBy: req.user._id
+    })
+    try {
+        await studio.save()
+        req.user.studio = studio._id
+        await req.user.save()
+        res.status(201).send({ studio })
+    } catch (e) {
+        res.status(400).send(e.message)
+    }
+})
+
+router.post('/profile', auth('admin'), async (req, res) => {
+    const studio = new Studio({
+        ...req.body,
+        addedBy: req.user._id
+    })
+    try {
+        await studio.save()
+        req.user.studio = studio._id
+        await req.user.save()
+        res.status(201).send({ studio })
+    } catch (e) {
+        res.status(400).send(e.message)
+    }
+})
+
+router.put('/profile', auth('admin'), async (req, res) => {
+    try {
+
+        const updatedData = req.body;
+        const studio = await Studio.findById(req.user.studio);
+
+        if (!studio) {
+            return res.status(404).json({ message: 'Studio not found' });
+        }
+
+        // Define an array of fields that can be updated
+        const updatableFields = [
+            'studioName',
+            'studioMobile',
+            'email',
+            'studioLandline',
+            'alternativeEmail',
+            'address',
+            'aboutStudio'
+        ];
+        updatableFields.forEach((field) => {
+            if (updatedData[field] !== undefined && updatedData[field] !== '') {
+                studio[field] = updatedData[field];
+            }
+        });
+        const updatedStudio = await studio.save();
+        return res.status(200).json({ success: true, message: 'Studio updated successfully', studio: updatedStudio });
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ success: false, message: 'Failed to update Studio' });
+    }
+});
+
+router.get('/profile', auth('admin'), async (req, res) => {
+    try {
+        const studio = await Studio.findById(req.user.studio);
+        res.status(201).send({ studio })
+    } catch (e) {
+        res.status(400).send(e.message)
+    }
+})
 
 router.post('/signin', async (req, res) => {
     try {
@@ -266,21 +337,6 @@ router.get('/clientAlbums', auth('admin'), async (req, res) => {
         res.send(user.albums)
     } catch (e) {
         res.status(500).send()
-    }
-})
-
-router.post('/addStudio', auth('admin'), async (req, res) => {
-    const studio = new Studio({
-        ...req.body,
-        addedBy: req.user._id
-    })
-    try {
-        await studio.save()
-        req.user.studio = studio._id
-        await req.user.save()
-        res.status(201).send({ studio })
-    } catch (e) {
-        res.status(400).send(e.message)
     }
 })
 
