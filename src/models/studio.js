@@ -32,7 +32,7 @@ const studioSchema = mongoose.Schema({
             }
         }
     },
-    alternativeEmail: {
+    pixelemail: {
         type: String,
         required: false,
         trim: true,
@@ -74,6 +74,11 @@ const studioSchema = mongoose.Schema({
         required: false,
         trim: true
     },
+    pincode: {
+        type: String,
+        required: false,
+        trim: true
+    },
     landMark: {
         type: String,
         required: false,
@@ -94,15 +99,69 @@ const studioSchema = mongoose.Schema({
         required: false,
         trim: true
     },
-    aboutStudio: {
+    about: {
         type: String,
         required: false,
         trim: true
     },
+    vision: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    },
+    mision: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    },
+    testimonial: [{
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    }],
+    pricing: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    },
+    socialLink: [{
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    }],
     workingSince: {
         type: String,
         required: false,
         trim: true
+    },
+    photos: [{
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    }],
+    videos:[{
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    }],
+    logo: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
+    },
+    portfolio: {
+        type: String,
+        required: false,
+        unique: false,
+        trim: false
     },
     profileimage: {
         type: String,
