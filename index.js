@@ -19,7 +19,6 @@ const app = express();
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
-
 // const userDashboardRoutes = require('./module/userdashboard/userdashboard');
 // const publicFeedsRoute = require('./module/userdashboard/publicfeed');
 // const onboardRoutes = require('./module/useronboard/clientOnBoard');
@@ -33,8 +32,8 @@ const studioRouter = require('./src/routers/studio')
 // Load and parse the Swagger specification file
 const swaggerSpec = YAML.load('./swagger.yaml');
 
-app.use(express.json()); // Parse JSON request bodies
-app.use(express.raw({ type: '*/*' })); // Parse all other request bodies as raw
+// app.use(express.json()); // Parse JSON request bodies
+// app.use(express.raw({ type: '*/*' })); // Parse all other request bodies as raw
 
 // app.use(cors({}));
 app.use(cors({

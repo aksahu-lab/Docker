@@ -164,16 +164,12 @@ const studioSchema = mongoose.Schema({
         trim: false
     },
     profileimage: {
-        type: String,
-        required: false,
-        unique: false,
-        trim: false
+        data: Buffer,
+        contentType: String
     },
     coverimage: {
-        type: String,
-        required: false,
-        unique: false,
-        trim: false
+        data: Buffer,
+        contentType: String
     },
     otp: {
         type: String,

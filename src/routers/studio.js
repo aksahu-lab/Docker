@@ -6,6 +6,8 @@ const auth = require('../middleware/auth')
 const speakeasy = require('speakeasy');
 const twilio = require('twilio');
 const OtpSchema = require('../models/otpschema'); // Assuming you've imported the OTP schema
+const sharp = require('sharp')
+const multer = require('multer');
 
 const router = new express.Router()
 
@@ -110,25 +112,19 @@ router.post('/signup', async (req, res) => {
         const token = await user.generateAuthToken()
         res.status(201).send({ user, token })
     } catch (e) {
-        res.status(400).send(e.message);
+        res.status(400).send({message: 'error in signout'});
       }    
 })
 
 router.post('/signin', async (req, res) => {
     try {
-        console.log('req.body.mobile: ', req.body.mobile)
-        console.log('req.body.mobile: ', req.body.password)
         const user = await User.findByCredentials(req.body.mobile, req.body.password)
-        
-        user.profileimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
-        user.coverimage = `https://fastly.picsum.photos/id/102/4320/3240.jpg?hmac=ico2KysoswVG8E8r550V_afIWN963F6ygTVrqHeHeRc`;
 
         const token = await user.generateAuthToken()
         await user.populate('studio')
-        res.send({ user, token })
+        res.send({ role: user.role, user, token })
     } catch (e) {
-        console.log(e)
-        res.status(400).send(e.message)
+        res.status(400).send({message: 'error in signin'})
     }
 })
 
@@ -140,7 +136,7 @@ router.post('/signout', auth(), async (req, res) => {
         await req.user.save()
         res.send()
     } catch (e) {
-        res.status(500).send()
+        res.status(500).send({message: 'error in signout'})
     }
 })
 
@@ -209,6 +205,105 @@ router.post('/profile', auth('admin'), async (req, res) => {
         res.status(201).send({ studio })
     } catch (e) {
         res.status(400).send(e.message)
+    }
+})
+
+const upload = multer({
+    limits: {
+        fileSize: 25 * 1024 * 1024
+    },
+    fileFilter(req, file, cb) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return cb(new Error('Please upload an image'))
+        }
+
+        cb(undefined, true)
+    }
+})
+
+router.post('/profile/photo', auth('admin'), upload.single('file'), async (req, res) => {
+    try {
+        const studio = await Studio.findById(req.user.studio);
+        
+        if (!studio) {
+            return res.status(404).json({ success: false, message: 'Studio not found' });
+        }
+        const file = req.file;
+        const compressedImageBuffer = await sharp(req.file.buffer)
+            .resize({ width: 250, height: 250 }) 
+            .png({ quality: 80 }) 
+            .toBuffer();
+        studio.profileimage.data = compressedImageBuffer;
+        studio.profileimage.contentType = file.mimetype;
+
+        await studio.save();
+
+        res.status(200).send({ success: true })
+    } catch (e) {
+        res.status(400).send({ success: false, message: 'Error saving profile photo' })
+    }
+})
+
+router.get('/profile/photo', auth('admin'), async (req, res) => {
+    try {
+        const studio = await Studio.findById(req.user.studio);
+        
+        if (!studio) {
+            return res.status(404).json({ success: false, message: 'Studio not found' });
+        }
+        const user = await User.findById(req.params.id)
+
+        if (!studio.profileimage.data) {
+            return res.status(404).json({ success: false, message: 'No profile image for the studio' });
+        }
+
+        res.set('Content-Type', 'image/png')
+        res.send(studio.profileimage.data)
+    } catch (e) {
+        res.status(404).send({ success: false, message: 'Error in getting profile image' })
+    }
+})
+
+router.post('/profile/coverPhoto', auth('admin'), upload.single('file'), async (req, res) => {
+    try {
+        const studio = await Studio.findById(req.user.studio);
+        if (!studio) {
+            return res.status(404).json({ success: false, message: 'Studio not found' });
+        }
+        const file = req.file;
+        const compressedImageBuffer = await sharp(file.buffer)
+            .resize({ width: 800, height: 350 }) 
+            .jpeg({ quality: 80 }) 
+            .toBuffer();
+
+        studio.coverimage.data = compressedImageBuffer;
+        studio.coverimage.contentType = file.mimetype;
+
+        const updatedStudio = await studio.save();
+
+        res.status(200).send({ success: true })
+    } catch (e) {
+        res.status(400).send({ success: false, message: 'Error saving cover photo' })
+    }
+})
+
+router.get('/profile/coverPhoto', auth('admin'), async (req, res) => {
+    try {
+        const studio = await Studio.findById(req.user.studio);
+        
+        if (!studio) {
+            return res.status(404).json({ success: false, message: 'Studio not found' });
+        }
+        const user = await User.findById(req.params.id)
+
+        if (!studio.coverimage.data) {
+            return res.status(404).json({ success: false, message: 'No cover image for the studio' });
+        }
+
+        res.set('Content-Type', 'image/png')
+        res.send(studio.coverimage.data)
+    } catch (e) {
+        res.status(404).send({ success: false, message: 'Error in getting cover image' })
     }
 })
 
@@ -378,8 +473,20 @@ router.get('/clients', auth('admin'), async (req, res) => {
         })
         res.send(studio.clients)
     } catch (e) {
-        console.log(e)
-        res.status(500).send()
+        res.status(500).send({message: 'error in getting client details'})
+    }
+})
+
+router.get('/client', auth('admin'), async (req, res) => {
+    try {
+        console.log(req.query.mobile)
+        const user = await User.findOne({ mobile: req.query.mobile })
+        if (!user) {
+            return res.status(400).send({status: false, message: 'User does not exist'})
+        }
+        res.send(user)
+    } catch (e) {
+        res.status(500).send({message: 'error whhile getting client details'})
     }
 })
 module.exports = router
