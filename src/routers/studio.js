@@ -120,9 +120,12 @@ router.post('/signin', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.mobile, req.body.password)
 
-        const token = await user.generateAuthToken()
-        await user.populate('studio')
-        res.send({ role: user.role, user, token })
+        const token = await user.generateAuthToken();
+        await user.populate({
+            path: 'studio',
+            select: '-profileimage -coverimage'
+        });
+        res.send({ role: user.role, user, token });
     } catch (e) {
         res.status(400).send({message: 'error in signin'})
     }
