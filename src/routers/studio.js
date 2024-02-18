@@ -2,12 +2,16 @@ const express = require('express')
 const Studio = require('../models/studio')
 const User = require('../models/user')
 const Album = require('../models/album')
+const Gift = require('../models/gift')
 const auth = require('../middleware/auth')
 const speakeasy = require('speakeasy');
 const twilio = require('twilio');
 const OtpSchema = require('../models/otpschema'); // Assuming you've imported the OTP schema
 const sharp = require('sharp')
 const multer = require('multer');
+const { uploadMiddleware, singleUploadMiddleware } = require('../middleware/upload');
+const fs = require('fs');
+const path = require('path');
 
 const router = new express.Router()
 
@@ -111,9 +115,18 @@ router.post('/signup', async (req, res) => {
         await user.save();
         const token = await user.generateAuthToken()
         res.status(201).send({ user, token })
-    } catch (e) {
-        res.status(400).send({message: 'error in signout'});
-      }    
+    } catch (error) {
+        handleError(error, res);
+    }
+})
+// It is temp solution to reset password, authenticate with otp before resetting
+router.post('/resetPassword', async (req, res) => {
+    try {
+        await User.resetPassword(req.body.mobile, req.body.password)
+        res.status(200).send({ success: true })
+    } catch (error) {
+        handleError(error, res);
+    }
 })
 
 router.post('/signin', async (req, res) => {
@@ -126,7 +139,7 @@ router.post('/signin', async (req, res) => {
             select: '-profileimage -coverimage'
         });
         res.send({ role: user.role, user, token });
-    } catch (e) {
+    } catch (error) {
         res.status(400).send({message: 'error in signin'})
     }
 })
@@ -216,11 +229,16 @@ const upload = multer({
         fileSize: 25 * 1024 * 1024
     },
     fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-            return cb(new Error('Please upload an image'))
+        // if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+        //     return cb(new Error('Please upload an image'))
+        // }
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/bmp'];
+        if (!allowedTypes.includes(file.mimetype)) {
+            return cb(new Error('Please upload an image'));
         }
 
-        cb(undefined, true)
+        cb(undefined, true);
     }
 })
 
@@ -254,8 +272,6 @@ router.get('/profile/photo', auth('admin'), async (req, res) => {
         if (!studio) {
             return res.status(404).json({ success: false, message: 'Studio not found' });
         }
-        const user = await User.findById(req.params.id)
-
         if (!studio.profileimage.data) {
             return res.status(404).json({ success: false, message: 'No profile image for the studio' });
         }
@@ -297,8 +313,6 @@ router.get('/profile/coverPhoto', auth('admin'), async (req, res) => {
         if (!studio) {
             return res.status(404).json({ success: false, message: 'Studio not found' });
         }
-        const user = await User.findById(req.params.id)
-
         if (!studio.coverimage.data) {
             return res.status(404).json({ success: false, message: 'No cover image for the studio' });
         }
@@ -484,6 +498,12 @@ router.get('/client', auth('admin'), async (req, res) => {
     try {
         console.log(req.query.mobile)
         const user = await User.findOne({ mobile: req.query.mobile })
+        // studio = await Studio.findById(req.user.studio).populate({
+        //     path: 'clients',
+        //     select: '_id'
+        // })
+        // console.log(studio.clients)
+        // TODO: Add check if the client belongs to the admin's studio
         if (!user) {
             return res.status(400).send({status: false, message: 'User does not exist'})
         }
@@ -492,4 +512,175 @@ router.get('/client', auth('admin'), async (req, res) => {
         res.status(500).send({message: 'error whhile getting client details'})
     }
 })
+
+router.post('/gift', auth('admin'), async (req, res) => {
+    const studio = await Studio.findById(req.user.studio)
+    if(!studio) {
+        return res.status(400).send('Please update your studio info before adding gifts')
+    }
+    const { productName, description, price, stockQuantity } = req.body;
+    const gift = new Gift({
+        productName,
+        description,
+        price,
+        stockQuantity,
+        studio: req.user.studio
+    })
+    
+    try {
+        await gift.save()
+        // const studio = await Studio.findByIdAndUpdate({_id: req.user.studio},{ $push: { gifts: gift._id } } )
+        // if(studio === null) {
+        //     res.status(500).send('Updating gifts to studio failed')
+        // }
+        res.status(201).send(gift)
+    } catch (error) {
+        handleError(error, res);
+    }
+})
+
+router.get('/gifts', auth('admin'), async (req, res) => {
+    try {
+        const studio = await Studio.findById(req.user.studio).populate({
+            path: 'gifts',
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            },
+            select: 'productName description price primaryImage.path'
+        })
+        res.send(studio.gifts)
+    } catch (error) {
+        res.status(500).send({message: 'Something went wrong'})
+    }
+})
+
+router.get('/gift', auth('admin'), async (req, res) => {
+    try {
+        console.log(req.query.id)
+        const gift = await Gift.findById(req.query.id )
+        if (!gift) {
+            return res.status(400).send({status: false, message: 'Gift not found'})
+        }
+        res.send(gift)
+    } catch (e) {
+        console.log(e)
+        res.status(500).send({message: 'error whhile getting gift details'})
+    }
+})
+
+router.post('/upload/gift/primaryImage', auth('admin'), singleUploadMiddleware('gifts'), async (req, res) => {
+    const gift = await Gift.findById(req.query.id)
+    const file = req.file;
+    try {
+        if(!gift) {
+            fs.unlinkSync(file.path);
+            return res.status(400).send({ error: 'Gift item not found' })
+        }
+        const giftsDirectory = path.join('uploads', 'gifts', req.user.studio.toString(), req.query.id)
+        fs.mkdirSync(giftsDirectory, { recursive: true });
+        const filePath = path.join(giftsDirectory, file.filename);
+        fs.rename(file.path, filePath, (err) => {
+            if (err) {
+                throw new Error(`unable to rename file: ${file.path}`)
+            }
+        });
+        const image = {
+            fileName: file.originalname,
+            path: filePath
+        }
+        //Updating filepath, so can it can be used to unlinksync
+        file.path = filePath;
+        if(gift.primaryImage) {
+            fs.unlinkSync(gift.primaryImage.path);
+        }
+        gift.primaryImage = image;
+        await gift.save();
+        res.status(200).json(gift.primaryImage);
+    } catch (error) {
+        fs.unlinkSync(file.path);
+        handleError(error, res);
+    }
+});
+
+router.post('/upload/gift/additionalImages', auth('admin'), uploadMiddleware('gifts', 5), async (req, res) => {
+    const gift = await Gift.findById(req.query.id)
+    const files = req.files;
+    try {
+        
+        if(!gift) {
+            //If no gift item, remove file
+            files.forEach((file) => {
+                fs.unlinkSync(file.path);
+            });
+            return res.status(400).send({ error: 'Gift item not found' })
+        }
+        const giftsDirectory = path.join('uploads', 'gifts', req.user.studio.toString(), req.query.id)
+        fs.mkdirSync(giftsDirectory, { recursive: true });
+        files.forEach((file) => {
+            const filePath = path.join(giftsDirectory, file.filename);
+            fs.rename(file.path, filePath, (err) => {
+                if (err) {
+                    throw new Error(`unable to rename file: ${file.path}`)
+                }
+            });
+            const image = {
+                fileName: file.originalname,
+                path: filePath
+            }
+            //Updating filepath, so can it can be used to unlinksync
+            file.path = filePath;
+            gift.additionalImages.push(image);
+        });
+        await gift.save();
+        res.status(200).json(gift.additionalImages);
+    } catch (error) {
+        unlinkFileSync(files);
+        handleError(error, res);
+    }
+});
+
+router.delete('/upload/gift/additionalImage', auth('admin'), async (req, res) => {
+    //TODO: Check for itemId and imageId in the request
+    const gift = await Gift.findById(req.query.itemId)
+    const file = req.file;
+    try {
+        if(!gift) {
+            return res.status(400).send({ error: 'Gift item not found' })
+        }
+        // Find the subdocument image to remove
+        const imageToDelete = gift.additionalImages.id(req.query.imageId)
+        
+
+        if(!imageToDelete) {
+            return res.status(400).json({ error: 'Image not found' });
+        }
+        await fs.unlinkSync(imageToDelete.path);
+        await gift.additionalImages.pull(imageToDelete)
+        await gift.save();
+        res.status(200).json({success: true});
+    } catch (error) {
+        handleError(error, res);
+    }
+});
+
+const unlinkFileSync = (files) => {
+    files.forEach((file) => {
+        fs.unlinkSync(file.path);
+    });
+}
+const handleError = (error, res) => {
+    if (error.name === "ValidationError") {
+        let errors = {};
+  
+        Object.keys(error.errors).forEach((key) => {
+          errors[key] = error.errors[key].message;
+        });
+  
+        return res.status(400).send(errors);
+    }
+    res.status(500).send({message: 'Something went wrong'});
+}
+
+
 module.exports = router

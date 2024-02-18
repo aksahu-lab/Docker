@@ -55,5 +55,14 @@ https://support.atlassian.com/bitbucket-cloud/docs/configure-ssh-and-two-step-ve
 API Details Doc
 http://localhost:3000/api-docs/
 
-Starte Mongo DB
+# How to run project locally
+## install node
+## Install Mongo
+- Either by file installation or by brew (brew install mongodb-community@6.0)
+## Starte Mongo DB service
 ./mongod --dbpath /Users/hritvik/Documents/MongoDbDataBase/data/db (/data/db -> path)
+OR
+brew services start mongodb-community@6.0 (can stop, start and restart)
+## Starte Node service
+node index.js or nodemon index.js
+

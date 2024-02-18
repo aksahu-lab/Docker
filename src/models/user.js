@@ -142,6 +142,20 @@ userSchema.methods.generateAuthToken = async function () {
     return token
 }
 
+//Only for temp use
+userSchema.statics.resetPassword = async (mobile, password) => {
+    const user = await User.findOne({ mobile })
+    if (!user) {
+        throw new Error('User does not exist')
+    }
+    hash = await bcryptjs.hash(password, 8)
+    await User.updateOne(
+        { _id: user._id },
+        { $set: { password: hash } },
+        { new: true }
+    );
+}
+
 /**
  * Check and return user if exists
  * @param {*} mobile 

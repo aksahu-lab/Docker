@@ -209,6 +209,12 @@ studioSchema.virtual('albums', {
     foreignField: 'studio'
 })
 
+studioSchema.virtual('gifts', {
+    ref: 'Gift',
+    localField: '_id',
+    foreignField: 'studio'
+})
+
 const Studio = mongoose.model('Studio', studioSchema)
 
 module.exports = Studio
