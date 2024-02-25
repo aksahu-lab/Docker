@@ -1,23 +1,5 @@
 const mongoose = require("mongoose");
 
-const imageSchema = new mongoose.Schema({ 
-    fileName: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    path: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    isPrimary: {
-        type: Boolean,
-        required: true,
-        default: false
-    }
-});
-
 const giftSchema = new mongoose.Schema({
     productName: {
         type: String,

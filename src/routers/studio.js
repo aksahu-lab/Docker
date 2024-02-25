@@ -3,6 +3,7 @@ const Studio = require('../models/studio')
 const User = require('../models/user')
 const Album = require('../models/album')
 const Gift = require('../models/gift')
+const Photo = require('../models/photo')
 const auth = require('../middleware/auth')
 const speakeasy = require('speakeasy');
 const twilio = require('twilio');
@@ -498,6 +499,7 @@ router.get('/client', auth('admin'), async (req, res) => {
     try {
         console.log(req.query.mobile)
         const user = await User.findOne({ mobile: req.query.mobile })
+        //TODO: Check if client is added to the studio
         // studio = await Studio.findById(req.user.studio).populate({
         //     path: 'clients',
         //     select: '_id'
@@ -643,7 +645,6 @@ router.post('/upload/gift/additionalImages', auth('admin'), uploadMiddleware('gi
 router.delete('/upload/gift/additionalImage', auth('admin'), async (req, res) => {
     //TODO: Check for itemId and imageId in the request
     const gift = await Gift.findById(req.query.itemId)
-    const file = req.file;
     try {
         if(!gift) {
             return res.status(400).send({ error: 'Gift item not found' })
@@ -664,6 +665,68 @@ router.delete('/upload/gift/additionalImage', auth('admin'), async (req, res) =>
     }
 });
 
+
+router.post('/upload/album/photos', auth('admin'), uploadMiddleware('albums', 5), async (req, res) => {
+    const albumId = req.query.id
+    const album = await Album.findById(albumId)
+    const files = req.files;
+    try {
+        
+        if(!album) {
+            //If no album, remove files
+            files.forEach((file) => {
+                fs.unlinkSync(file.path);
+            });
+            return res.status(400).send({ error: 'Album item not found' })
+        }
+        const albumDirectory = path.join('uploads', 'albums', req.user.studio.toString(), albumId);
+        fs.mkdirSync(albumDirectory, { recursive: true });
+        //Move the photos to specific directory like uploads/albums/studio_id/album_id/
+        files.forEach((file) => {
+            const filePath = path.join(albumDirectory, file.filename);
+            fs.rename(file.path, filePath, (err) => {
+                if (err) {
+                    throw new Error(`unable to rename file: ${file.path}`)
+                }
+            });
+            file.path = filePath;
+        });
+
+        const photoDocuments = files.map((file) => ({
+            fileName: file.originalname,
+            path: file.path,
+            album: albumId,
+        }));
+        const insertedPhotos = await Photo.insertMany(photoDocuments);
+        //Push photo ids to album
+        await Album.findByIdAndUpdate(albumId, { $push: { photos: { $each: insertedPhotos.map((p) => p._id) } } });
+        res.status(200).json(photoDocuments);
+    } catch (error) {
+        unlinkFileSync(files);
+        handleError(error, res);
+    }
+});
+
+router.get('/album/photos', auth('admin'), async (req, res) => {
+
+    try {
+        const album = await Album.findById(req.query.id )
+        if (!album) {
+            return res.status(400).send({status: false, message: 'Album not found'})
+        }
+        await album.populate({
+            path: 'photos',
+            options: {
+                limit: parseInt(req.query.limit),
+                skip: parseInt(req.query.skip)
+            }
+        })
+        res.send(album.photos)
+    } catch (e) {
+        res.status(500).send({message: 'error in getting client details'})
+    }
+})
+
 const unlinkFileSync = (files) => {
     files.forEach((file) => {
         fs.unlinkSync(file.path);
@@ -679,6 +742,7 @@ const handleError = (error, res) => {
   
         return res.status(400).send(errors);
     }
+    console.log(error)
     res.status(500).send({message: 'Something went wrong'});
 }
 

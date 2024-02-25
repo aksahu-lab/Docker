@@ -37,6 +37,10 @@ const albumSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    photos: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Photo'
+    }],
     studio: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
