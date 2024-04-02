@@ -4,14 +4,11 @@
 //  Created by Gyan on 23/06/2023.
 //
 
-const express = require('express');
-require('./src/database/mongoose');
-const cors = require('cors');
-const { createProxyMiddleware } = require('http-proxy-middleware');
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const YAML = require('yamljs');
-const dotenv = require('dotenv');
+const express = require("express");
+require("./src/database/mongoose");
+const cors = require("cors");
+const { createProxyMiddleware } = require("http-proxy-middleware");
+const dotenv = require("dotenv");
 dotenv.config();
 
 const app = express();
@@ -19,30 +16,17 @@ const app = express();
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
-// const userDashboardRoutes = require('./module/userdashboard/userdashboard');
-// const publicFeedsRoute = require('./module/userdashboard/publicfeed');
-// const onboardRoutes = require('./module/useronboard/clientOnBoard');
-// const socialBuilderRoute = require('./module/SocialBuilder/socialBuilder');
+const studioRouter = require("./src/routers/studio");
 
-// const studioOnboardRoutes = require('./module/Studio/StudioRouter');
-// const studioInfoRoutes = require('./module/Vendor/Studio/studioinfo');
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+app.options("*");
 
-const studioRouter = require('./src/routers/studio')
-
-// Load and parse the Swagger specification file
-// const swaggerSpec = YAML.load('./swagger.yaml');
-
-// app.use(express.json()); // Parse JSON request bodies
-// app.use(express.raw({ type: '*/*' })); // Parse all other request bodies as raw
-
-// app.use(cors({}));
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true,
-}));
-app.options('*');
-
-app.use('/api/studio', studioRouter);
+app.use("/api/studio", studioRouter);
 
 // Serve the Swagger UI at the /api-docs endpoint
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -110,18 +94,16 @@ app.use('/api/studio', studioRouter);
 //   console.log('*** Public Feeds Route');
 // });
 
-
 // app.use('/api/social', socialBuilderRoute, (req, res) => {
 //   console.log('*** social network Activity');
 // });
-
 
 /**
  * Default route handler.
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-app.get('/', (req, res) => {});
+app.get("/", (req, res) => {});
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
@@ -129,11 +111,11 @@ app.listen(port, () => {
 });
 
 // module.exports = app;
-module.exports = function(app) {
+module.exports = function (app) {
   app.use(
-    '/api',
+    "/api",
     createProxyMiddleware({
-      target: 'http://localhost:8080',
+      target: "http://localhost:8080",
       changeOrigin: true,
     })
   );
