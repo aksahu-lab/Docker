@@ -420,21 +420,21 @@ router.get('/albums', auth('admin'), async (req, res) => {
 
 router.get('/clientAlbums', auth('admin'), async (req, res) => {
     const match = {studio:  req.user.studio}
-    if (req.body.eventType) {
-        match.eventType = req.body.eventType
+    if (req.query.eventType) {
+        match.eventType = req.query.eventType
     }
-    if (req.body.status) {
-        match.status = req.body.status
+    if (req.query.status) {
+        match.status = req.query.status
     }
     try {
-        const user = await User.findById(req.body.client).populate({
+        const user = await User.findById(req.query.client).populate({
             path: 'albums',
             match,
             options: {
                 limit: parseInt(req.query.limit),
                 skip: parseInt(req.query.skip)
             },
-            select: '_id albumName status eventType'
+            select: '_id albumName status eventType eventDate'
         })
         res.send(user.albums)
     } catch (e) {
