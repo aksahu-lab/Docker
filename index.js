@@ -99,6 +99,11 @@ app.use("/api/studio", studioRouter);
 // });
 
 /**
+ * For uploaded image files
+ */
+app.use("/images", express.static(__dirname));
+
+/**
  * Default route handler.
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object

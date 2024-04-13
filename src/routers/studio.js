@@ -829,7 +829,13 @@ router.get("/album/photos", auth("admin"), async (req, res) => {
         skip: parseInt(req.query.skip),
       },
     });
-    res.send(album.photos);
+    
+
+    photos = album.photos.map(photoObj => {
+        photoObj.path = `http://localhost:8080/images/${photoObj.path}`
+        return photoObj
+    });
+    res.send(photos);
   } catch (e) {
     res.status(500).send({ message: "error in getting client details" });
   }
