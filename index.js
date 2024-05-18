@@ -17,6 +17,7 @@ app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies
 
 const studioRouter = require("./src/routers/studio");
+const groupRouter = require("./src/routers/group");
 
 app.use(
   cors({
@@ -27,6 +28,7 @@ app.use(
 app.options("*");
 
 app.use("/api/studio", studioRouter);
+app.use("/api/group", groupRouter);
 
 // Serve the Swagger UI at the /api-docs endpoint
 // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -108,7 +110,7 @@ app.use("/images", express.static(__dirname));
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-app.get("/", (req, res) => {});
+app.get("/", (req, res) => { });
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {

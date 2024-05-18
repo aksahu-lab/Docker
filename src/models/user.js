@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema({
         enum: {
             values: ['admin', 'assistant', 'client'],
             message: '{VALUE} role is not valid'
-          },
+        },
         default: 'client'
     },
     studio: { //Only for admin and assistant
@@ -108,12 +108,12 @@ userSchema.pre('save', async function (next) {
     next()
 })
 
-userSchema.post('save', function(error, doc, next) {
+userSchema.post('save', function (error, doc, next) {
     console.log(error)
-    if ( error.code === 11000) {
-        if(error.keyPattern.mobile) {
+    if (error.code === 11000) {
+        if (error.keyPattern.mobile) {
             next(new Error('mobile already registered'));
-        } else if(error.keyPattern.email) {
+        } else if (error.keyPattern.email) {
             next(new Error('email already registered'));
         } else {
             next(new Error('User already registered'));
@@ -132,13 +132,10 @@ userSchema.post('save', function(error, doc, next) {
  */
 userSchema.methods.generateAuthToken = async function () {
     const user = this
-    console.log('process.env.SECRET_KEY: ', process.env.SECRET_KEY)
     const token = jwt.sign({ _id: user._id.toString(), role: user.role }, process.env.SECRET_KEY)
 
-    console.log('created token', token)
     user.tokens = user.tokens.concat({ token })
     await user.save()
-
     return token
 }
 

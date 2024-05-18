@@ -464,12 +464,12 @@ router.post("/album", auth("admin"), async (req, res) => {
 
 router.get("/albums", auth("admin"), async (req, res) => {
   const match = {};
-    if (req.query.eventType) {
-        match.eventType = req.query.eventType
-    }
-    if (req.query.status) {
-        match.status = req.query.status
-    }
+  if (req.query.eventType) {
+    match.eventType = req.query.eventType
+  }
+  if (req.query.status) {
+    match.status = req.query.status
+  }
   try {
     const studio = await Studio.findById(req.user.studio).populate({
       path: "albums",
@@ -488,12 +488,12 @@ router.get("/albums", auth("admin"), async (req, res) => {
 
 router.get("/clientAlbums", auth("admin"), async (req, res) => {
   const match = { studio: req.user.studio };
-    if (req.query.eventType) {
-        match.eventType = req.query.eventType
-    }
-    if (req.query.status) {
-        match.status = req.query.status
-    }
+  if (req.query.eventType) {
+    match.eventType = req.query.eventType
+  }
+  if (req.query.status) {
+    match.status = req.query.status
+  }
   try {
     const user = await User.findById(req.query.client).populate({
       path: "albums",
@@ -829,11 +829,11 @@ router.get("/album/photos", auth("admin"), async (req, res) => {
         skip: parseInt(req.query.skip),
       },
     });
-    
+
 
     photos = album.photos.map(photoObj => {
-        photoObj.path = `http://localhost:8080/images/${photoObj.path}`
-        return photoObj
+      photoObj.path = `http://localhost:8080/images/${photoObj.path}`
+      return photoObj
     });
     res.send(photos);
   } catch (e) {
