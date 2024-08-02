@@ -1,7 +1,6 @@
 **INSTALL DOCKER:**
 1. You can create an Ubuntu EC2 Instance on AWS and run the below commands to install docker.
 **sudo apt update
-
 sudo apt install docker.io -y**
 
 3. verify your Docker installation is by running the below command
