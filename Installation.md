@@ -1,9 +1,10 @@
 **INSTALL DOCKER:**
 1. You can create an Ubuntu EC2 Instance on AWS and run the below commands to install docker.
 **sudo apt update
+
 sudo apt install docker.io -y**
 
-2. verify your Docker installation is by running the below command
+3. verify your Docker installation is by running the below command
 docker run hello-world
 
 Error: docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create": dial unix /var/run/docker.sock: connect: permission denied.
