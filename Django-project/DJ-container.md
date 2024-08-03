@@ -8,6 +8,8 @@ Followings are implementation steps
 6. docker build .
 7. docker images
 8. docker run -p 8000:8000 -it imageID
+9. docker tag imageID aksahulab/django:latest
+10. docker push aksahulab/django:latest
 
 
 
