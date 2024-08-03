@@ -28,7 +28,7 @@ II. devops --> devops --> urls.py
 Responsible to serving the content: if has /demo folder
 http://<IP>:<port>/demo
 
-**Step 4: ** To create application
+**Step 4:** To create application
 python manage.py startapp <App name>
 python manage.py startapp demo
 
