@@ -7,7 +7,7 @@ Followings are implementation steps
 5. cd python-web-app
 6. docker build .
 7. docker images
-8. docker run -p 8000:8000 -it <image ID>
+8. docker run -p 8000:8000 -it <imageID>
 
 
 
