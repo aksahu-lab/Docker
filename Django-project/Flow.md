@@ -1,4 +1,3 @@
-For creating Django project:
 **Step 1:** Create EC2 instance
 
 **Step 2:** install
