@@ -4,7 +4,7 @@ docker build -t aksahulab/<image_name>:<tag_name> .
 
 Docker run:
 docker run -it aksahulab/multigo
-docker run -p 8000:800 -it aksahulab/multigo ------> Ex: For web app, if it requires 8000 port to open
+docker run -p 8000:8000 -it aksahulab/multigo ------> Ex: For web app, if it requires 8000 port to open
 
 Docker login:
 docker login
