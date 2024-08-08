@@ -3,9 +3,18 @@ docker build -t aksahulab/<image_name>:<tag_name> -f DockerFile
 docker build -t aksahulab/<image_name>:<tag_name> .
 
 Docker run:
+docker run -it aksahulab/multigo
+docker run -p 8000:800 -it aksahulab/multigo ------> Ex: For web app, if it requires 8000 port to open
 
 Docker login:
+docker login
+username: aksahulab
+password: *******
 
 Docker push:
+docker push <image_name>
+docker push <image_ID>
 
 Docker pull:
+docker pull <image_name>
+docker pull <image_ID>
