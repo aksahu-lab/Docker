@@ -18,3 +18,26 @@ docker push <image_ID>
 Docker pull:
 docker pull <image_name>
 docker pull <image_ID>
+
+
+Docker volume command included:
+1. Docker build: docker build -t aksahulab/simplecalc:latest .
+2. List images: docker images
+3. Docker run: 
+   a. it: interactive terminal
+      docker run -it aksahulab/simplecalc:latest
+
+4. Volume create: docker volume create myvol
+5. List volume: docker volume ls
+6. Details of volume: docker volume inspect myvol
+7. Remove volume: docker volume rm myvol
+8. Mount volume: docker run -d --mount source=myvol,destination=/app aksahulab/myhello
+9. Docker login: docker login
+10. Docker push: docker push aksahulab/myhello:latest
+11. Login to a container:
+    a. Using it: docker run --name mycalc_container -it aksahulab/myhello bash
+    b. using detach: docker exec -it 8f2fbe17925d bash
+12. List running containers: docker ps
+13. List exited containers: docker ps -a
+14. Run an infinite process to keep the container live:
+    docker run -d --name mycalc_container5 aksahulab/myhello tail -f /dev/null
