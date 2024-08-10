@@ -1,4 +1,5 @@
 #My first python file
+FROM python
 
 #Setting working directory
 WORKDIR /app
