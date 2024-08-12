@@ -46,3 +46,10 @@ PING 172.18.0.2 (172.18.0.2) 56(84) bytes of data.
 ^C
 --- 172.18.0.2 ping statistics ---
 21 packets transmitted, 0 received, 100% packet loss, time 20486ms
+
+**Stop containers:**
+ubuntu@Docker-VM:~$ docker stop finance login logout
+finance
+login
+logout
+ubuntu@Docker-VM:~$
