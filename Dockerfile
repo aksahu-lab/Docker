@@ -14,6 +14,12 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install --only=production
 
+#fix vulnerabilities
+RUN npm audit fix --force
+
+#Upgrade
+RUN npm install -g npm@10.8.2
+
 # Copy the rest of your application files
 COPY . .
 
