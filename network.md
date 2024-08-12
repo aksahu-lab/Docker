@@ -22,8 +22,11 @@ docker run hello-world
 3. Host network:
    docker run -d --name host-demo --network=host nginx:latest
 
-**List networks:**
+**List network:**
 docker network ls
+
+**Remove network:**
+docker network rm <network_name>
 
 **Connectivity check:**
 docker run -d --name login nginx:latest
@@ -43,7 +46,3 @@ PING 172.18.0.2 (172.18.0.2) 56(84) bytes of data.
 ^C
 --- 172.18.0.2 ping statistics ---
 21 packets transmitted, 0 received, 100% packet loss, time 20486ms
-
-
-
-
